@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package consulo.dotignore.actions;
+package consulo.dotignore.action;
 
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;

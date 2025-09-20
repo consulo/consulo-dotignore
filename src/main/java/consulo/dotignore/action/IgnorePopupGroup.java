@@ -13,33 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package consulo.dotignore.actions;
+package consulo.dotignore.action;
 
 import consulo.annotation.component.ActionImpl;
 import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
-import consulo.annotation.component.ActionRefAnchor;
 import consulo.application.dumb.DumbAware;
 import consulo.localize.LocalizeValue;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.ui.ex.action.IdeActions;
-import mobi.hsz.idea.gitignore.actions.AddTemplateAction;
-import mobi.hsz.idea.gitignore.actions.CreateUserTemplateAction;
+import mobi.hsz.idea.gitignore.actions.IgnoreFileGroupAction;
+import mobi.hsz.idea.gitignore.actions.UnignoreFileGroupAction;
 
 /**
  * @author UNV
  * @since 2025-09-20
  */
 @ActionImpl(
-    id = "Ignore.TemplateGroup",
+    id = "Ignore.PopupGroup",
     children = {
-        @ActionRef(type = AddTemplateAction.class),
-        @ActionRef(type = CreateUserTemplateAction.class)
+        @ActionRef(type = IgnoreFileGroupAction.class),
+        @ActionRef(type = UnignoreFileGroupAction.class),
+        @ActionRef(type = IgnoreTemplateGroup.class)
     },
-    parents = @ActionParentRef(value = @ActionRef(id = IdeActions.GROUP_GENERATE), anchor = ActionRefAnchor.FIRST)
+    parents = {
+        @ActionParentRef(@ActionRef(id = IdeActions.GROUP_EDITOR_POPUP)),
+        @ActionParentRef(@ActionRef(id = IdeActions.GROUP_PROJECT_VIEW_POPUP)),
+        @ActionParentRef(@ActionRef(id = IdeActions.GROUP_EDITOR_TAB_POPUP)),
+        @ActionParentRef(@ActionRef(id = IdeActions.GROUP_CONSOLE_EDITOR_POPUP))
+    }
 )
-public class IgnoreTemplateGroup extends DefaultActionGroup implements DumbAware {
-    public IgnoreTemplateGroup() {
+public class IgnorePopupGroup extends DefaultActionGroup implements DumbAware {
+    public IgnorePopupGroup() {
         super(LocalizeValue.empty(), false);
     }
 }
