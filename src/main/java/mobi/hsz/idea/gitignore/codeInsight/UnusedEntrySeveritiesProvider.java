@@ -27,9 +27,9 @@ package mobi.hsz.idea.gitignore.codeInsight;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.colorScheme.TextAttributes;
 import consulo.colorScheme.TextAttributesKey;
-import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.language.editor.annotation.HighlightSeverity;
 import consulo.language.editor.rawHighlight.HighlightInfoType;
+import consulo.language.editor.rawHighlight.HighlightInfoTypeImpl;
 import consulo.language.editor.rawHighlight.SeveritiesProvider;
 import consulo.ui.color.ColorValue;
 import consulo.ui.style.StandardColors;
@@ -49,7 +49,7 @@ import java.util.List;
 public class UnusedEntrySeveritiesProvider extends SeveritiesProvider {
     /** Unused entry {@link HighlightSeverity} instance. */
     @Nonnull
-    private static final HighlightSeverity UNUSED_ENTRY = new HighlightSeverity("UNUSED ENTRY", 10);
+    private static final HighlightSeverity UNUSED_ENTRY = new HighlightSeverity("DOT_IGNORE_UNUSED_ENTRY", 10);
 
     /**
      * Defines the style of matched entry.
@@ -61,9 +61,9 @@ public class UnusedEntrySeveritiesProvider extends SeveritiesProvider {
     public List<HighlightInfoType> getSeveritiesHighlightInfoTypes() {
         List<HighlightInfoType> result = new ArrayList<>();
 
-        result.add(new HighlightInfoType.HighlightInfoTypeImpl(
+        result.add(new HighlightInfoTypeImpl(
             UNUSED_ENTRY,
-            TextAttributesKey.of(IgnoreLocalize.codeinspectionUnusedentry().get(), IgnoreHighlighterColors.UNUSED)
+            TextAttributesKey.of("DOT_IGNORE_UNUSED", IgnoreHighlighterColors.UNUSED)
         ));
         return result;
     }
