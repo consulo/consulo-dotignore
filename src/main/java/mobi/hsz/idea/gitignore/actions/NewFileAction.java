@@ -36,6 +36,7 @@ import consulo.project.ui.notification.NotificationService;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
@@ -53,7 +54,7 @@ import mobi.hsz.idea.gitignore.util.Utils;
  * @since 0.1
  */
 @SuppressWarnings("ComponentNotRegistered")
-public class NewFileAction extends AnAction implements DumbAware {
+public class NewFileAction extends AnAction implements DumbAware, AnActionWithSyncUpdate {
     /**
      * Current file type.
      */
@@ -134,7 +135,6 @@ public class NewFileAction extends AnAction implements DumbAware {
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         IdeView view = e.getData(IdeView.KEY);
 

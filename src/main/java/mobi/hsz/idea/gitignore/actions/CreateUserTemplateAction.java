@@ -33,6 +33,7 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.psi.IgnoreFile;
@@ -46,8 +47,7 @@ import mobi.hsz.idea.gitignore.util.Icons;
  * @since 1.5
  */
 @ActionImpl(id = "IgnoreCreateUserTemplate")
-public class CreateUserTemplateAction extends AnAction
-{
+public class CreateUserTemplateAction extends AnAction implements AnActionWithSyncUpdate {
     public CreateUserTemplateAction() {
         super(
             IgnoreLocalize.actionCreateusertemplate(),
@@ -94,7 +94,6 @@ public class CreateUserTemplateAction extends AnAction
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         PsiFile file = e.getData(PsiFile.KEY);
 

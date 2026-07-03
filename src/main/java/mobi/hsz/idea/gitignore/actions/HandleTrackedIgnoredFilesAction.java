@@ -29,6 +29,7 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.util.collection.Maps;
 import consulo.versionControlSystem.root.VcsRoot;
 import consulo.virtualFileSystem.VirtualFile;
@@ -46,7 +47,7 @@ import java.util.concurrent.ConcurrentMap;
  * @since 1.7.2
  */
 @ActionImpl(id = "HandleTrackedIgnoredFiles")
-public class HandleTrackedIgnoredFilesAction extends AnAction {
+public class HandleTrackedIgnoredFilesAction extends AnAction implements AnActionWithSyncUpdate {
     /**
      * Builds a new instance of {@link HandleTrackedIgnoredFilesAction}.
      */
@@ -81,7 +82,6 @@ public class HandleTrackedIgnoredFilesAction extends AnAction {
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         e.getPresentation().setVisible(!getTrackedIgnoredFiles(e).isEmpty());
     }

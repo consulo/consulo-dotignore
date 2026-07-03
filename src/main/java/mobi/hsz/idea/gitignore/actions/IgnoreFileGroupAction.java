@@ -30,7 +30,6 @@ import consulo.annotation.component.ActionRefAnchor;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
-import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.*;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
@@ -65,19 +64,27 @@ import java.util.function.Function;
         relatedToAction = @ActionRef(id = "ChangesView.AddUnversioned")
     )
 )
-public class IgnoreFileGroupAction extends ActionGroup {
-    /** Maximum filename length for the action name. */
+public class IgnoreFileGroupAction extends ActionGroup implements AnActionWithSyncUpdate {
+    /**
+     * Maximum filename length for the action name.
+     */
     private static final int FILENAME_MAX_LENGTH = 30;
 
-    /** List of suitable Gitignore {@link VirtualFile}s that can be presented in an IgnoreFile action. */
+    /**
+     * List of suitable Gitignore {@link VirtualFile}s that can be presented in an IgnoreFile action.
+     */
     @Nonnull
     private final Map<IgnoreFileType, List<VirtualFile>> files = new HashMap<>();
 
-    /** Action presentation's text for single element. */
+    /**
+     * Action presentation's text for single element.
+     */
     @Nonnull
     private final Function<String, LocalizeValue> presentationTextSingle;
 
-    /** {@link Project}'s base directory. */
+    /**
+     * {@link Project}'s base directory.
+     */
     @Nullable
     private VirtualFile baseDir;
 
@@ -119,7 +126,6 @@ public class IgnoreFileGroupAction extends ActionGroup {
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         VirtualFile file = e.getData(VirtualFile.KEY);
         Project project = e.getData(Project.KEY);

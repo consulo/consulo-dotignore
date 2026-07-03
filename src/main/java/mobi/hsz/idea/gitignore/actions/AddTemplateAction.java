@@ -30,6 +30,7 @@ import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.psi.IgnoreFile;
 import mobi.hsz.idea.gitignore.ui.GeneratorDialog;
@@ -41,7 +42,7 @@ import mobi.hsz.idea.gitignore.ui.GeneratorDialog;
  * @since 0.5.3
  */
 @ActionImpl(id = "Ignore.AddTemplate")
-public class AddTemplateAction extends AnAction {
+public class AddTemplateAction extends AnAction implements AnActionWithSyncUpdate {
     /** Builds a new instance of {@link AddTemplateAction}. */
     public AddTemplateAction() {
         super(IgnoreLocalize.actionAddtemplate(), IgnoreLocalize.actionAddtemplateDescription());
@@ -73,7 +74,6 @@ public class AddTemplateAction extends AnAction {
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         if (e.getData(PsiFile.KEY) instanceof IgnoreFile ignoreFile) {
             getTemplatePresentation().setIcon(ignoreFile.getFileType().getIcon());

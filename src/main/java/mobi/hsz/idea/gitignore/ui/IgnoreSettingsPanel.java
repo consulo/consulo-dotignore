@@ -47,6 +47,7 @@ import consulo.ui.ex.InputValidatorEx;
 import consulo.ui.ex.action.AnAction;
 import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.DefaultActionGroup;
+import consulo.ui.ex.action.LegacyDumbAwareAction;
 import consulo.ui.ex.awt.*;
 import consulo.ui.ex.awt.table.JBTable;
 import consulo.undoRedo.CommandProcessor;
@@ -751,7 +752,7 @@ public class IgnoreSettingsPanel implements Disposable {
                 }
             });
 
-            group.add(new AnAction(
+            group.add(new LegacyDumbAwareAction(
                 IgnoreLocalize.actionExporttemplates(),
                 IgnoreLocalize.actionExporttemplatesDescription(),
                 PlatformIconGroup.actionsExport()
@@ -791,7 +792,6 @@ public class IgnoreSettingsPanel implements Disposable {
                 }
 
                 @Override
-                @RequiredUIAccess
                 public void update(@Nonnull AnActionEvent e) {
                     e.getPresentation().setEnabled(getCurrentItems().size() > 0);
                 }

@@ -30,6 +30,7 @@ import consulo.project.Project;
 import consulo.project.ui.notification.NotificationType;
 import consulo.ui.annotation.RequiredUIAccess;
 import consulo.ui.ex.action.AnActionEvent;
+import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.ui.ex.action.DumbAwareAction;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
@@ -52,7 +53,7 @@ import java.util.function.Function;
  * @since 0.4
  */
 @SuppressWarnings("ComponentNotRegistered")
-public class IgnoreFileAction extends DumbAwareAction {
+public class IgnoreFileAction extends DumbAwareAction implements AnActionWithSyncUpdate {
     /**
      * Ignore {@link VirtualFile} that will be used for current action.
      */
@@ -174,7 +175,6 @@ public class IgnoreFileAction extends DumbAwareAction {
      * @param e action event
      */
     @Override
-    @RequiredUIAccess
     public void update(@Nonnull AnActionEvent e) {
         VirtualFile[] files = e.getData(VirtualFile.KEY_OF_ARRAY);
         Project project = e.getData(Project.KEY);

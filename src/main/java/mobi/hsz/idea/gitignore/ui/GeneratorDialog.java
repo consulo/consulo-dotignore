@@ -381,7 +381,7 @@ public class GeneratorDialog extends DialogWrapper {
         DefaultActionGroup actions = new DefaultActionGroup();
         actions.add(actionManager.createExpandAllAction(treeExpander, tree));
         actions.add(actionManager.createCollapseAllAction(treeExpander, tree));
-        actions.add(new AnAction(
+        actions.add(new LegacyDumbAwareAction(
             IgnoreLocalize.dialogGeneratorUnselectall(),
             LocalizeValue.empty(),
             PlatformIconGroup.actionsUnselectall()
@@ -399,7 +399,7 @@ public class GeneratorDialog extends DialogWrapper {
                 filterTree(profileFilter.getTextEditor().getText());
             }
         });
-        actions.add(new AnAction(IgnoreLocalize.dialogGeneratorStar(), LocalizeValue.empty(), PlatformIconGroup.nodesStar()) {
+        actions.add(new LegacyDumbAwareAction(IgnoreLocalize.dialogGeneratorStar(), LocalizeValue.empty(), PlatformIconGroup.nodesStar()) {
             @Override
             @RequiredUIAccess
             public void update(@Nonnull AnActionEvent e) {
