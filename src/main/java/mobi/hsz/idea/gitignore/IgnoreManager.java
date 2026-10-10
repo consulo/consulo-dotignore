@@ -628,9 +628,7 @@ public class IgnoreManager implements Disposable {
             notConfirmedIgnoredFiles.clear();
             debouncedStatusesChanged.run();
 
-            for (ProjectViewPane pane : myProject.getExtensionList(ProjectViewPane.class)) {
-                pane.queueUpdate();
-            }
+            ProjectView.getInstance(myProject).queueUpdateAll();
         }
     }
 }
