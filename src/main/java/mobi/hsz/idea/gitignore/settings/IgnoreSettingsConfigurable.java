@@ -28,10 +28,13 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.configurable.Configurable;
 import consulo.configurable.ConfigurationException;
 import consulo.configurable.SearchableConfigurable;
+import consulo.disposer.Disposable;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
+import consulo.ui.Component;
 import consulo.ui.annotation.RequiredUIAccess;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 import consulo.util.lang.Comparing;
 import consulo.versionControlSystem.VcsConfigurableProvider;
 import jakarta.annotation.Nonnull;
@@ -101,12 +104,12 @@ public class IgnoreSettingsConfigurable implements SearchableConfigurable, VcsCo
     @Nullable
     @Override
     @RequiredUIAccess
-    public JComponent createComponent() {
+    public Component createUIComponent(Disposable parentDisposable) {
         if (settingsPanel == null) {
             settingsPanel = new IgnoreSettingsPanel();
         }
         reset();
-        return settingsPanel.panel;
+        return TargetAWT.wrap(settingsPanel.panel);
     }
 
     /**
