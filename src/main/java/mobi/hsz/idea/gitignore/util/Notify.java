@@ -99,6 +99,6 @@ public class Notify {
         @Nullable NotificationListener listener
     ) {
         Notification notification = group.createNotification(title, content, type, listener);
-        Notifications.Bus.notify(notification, project);
+        notification.notify(project);
     }
 }
