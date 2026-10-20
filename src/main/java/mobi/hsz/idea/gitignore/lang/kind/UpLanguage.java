@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.UpFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * UPLanguage {@link IgnoreLanguage} definition.
+ * UPLanguage {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 2.1.0
  */
-public class UpLanguage extends IgnoreLanguage {
+public class UpLanguage extends DotIgnoreLanguage {
     /** The {@link UpLanguage} instance. */
     public static final UpLanguage INSTANCE = new UpLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private UpLanguage() {
         super("Up", "upignore", null, Icons.UP);
     }

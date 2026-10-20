@@ -33,6 +33,9 @@ import consulo.container.plugin.PluginManager;
 import consulo.document.Document;
 import consulo.fileEditor.FileEditorManager;
 import consulo.language.file.FileViewProvider;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
+import consulo.language.parser.ParserDefinition;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
@@ -46,13 +49,12 @@ import consulo.ui.ex.tree.PresentationData;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.fileType.FileTypeRegistry;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
 import mobi.hsz.idea.gitignore.command.CreateFileCommandAction;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -143,8 +145,9 @@ public class Utils {
             FileViewProvider viewProvider = PsiManager.getInstance(project).findViewProvider(virtualFile);
             if (viewProvider != null) {
                 IgnoreLanguage language = IgnoreBundle.obtainLanguage(virtualFile);
-                if (language != null) {
-                    psiFile = language.createFile(viewProvider);
+                ParserDefinition parserDefinition = language != null ? ParserDefinition.forLanguage(language) : null;
+                if (parserDefinition != null) {
+                    psiFile = parserDefinition.createFile(viewProvider);
                 }
             }
         }
@@ -202,7 +205,8 @@ public class Utils {
     }
 
     /**
-     * Checks if given directory is a {@link IgnoreLanguage#getVcsDirectory()}.
+     * Checks if given directory is a VCS directory: {@link IgnoreBundle#getVcsDirectory(IgnoreLanguage)} of the enabled
+     * kinds, or a directory ignored by the file type manager (i.e. {@code .git}).
      *
      * @param directory to check
      * @return given file is VCS directory
@@ -211,8 +215,11 @@ public class Utils {
         if (!directory.isDirectory()) {
             return false;
         }
-        for (IgnoreLanguage language : IgnoreBundle.VCS_LANGUAGES) {
-            String vcsName = language.getVcsDirectory();
+        if (FileTypeRegistry.getInstance().isFileIgnored(directory)) {
+            return true;
+        }
+        for (IgnoreLanguage language : IgnoreBundle.getVcsLanguages()) {
+            String vcsName = IgnoreBundle.getVcsDirectory(language);
             if (directory.getName().equals(vcsName) && IgnoreBundle.ENABLED_LANGUAGES.get(language.getFileType())) {
                 return true;
             }

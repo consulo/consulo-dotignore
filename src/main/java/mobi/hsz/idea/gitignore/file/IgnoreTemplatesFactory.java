@@ -27,14 +27,15 @@ package mobi.hsz.idea.gitignore.file;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.fileTemplate.FileTemplateGroupDescriptor;
 import consulo.fileTemplate.FileTemplateGroupDescriptorFactory;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
+import consulo.language.ignore.Syntax;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiFileFactory;
 import consulo.language.util.IncorrectOperationException;
 import jakarta.annotation.Nullable;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Constants;
 
 /**
@@ -87,8 +88,8 @@ public class IgnoreTemplatesFactory implements FileTemplateGroupDescriptorFactor
         IgnoreLanguage language = fileType.getIgnoreLanguage();
 
         String content = IgnoreLocalize.fileTemplatenote() + Constants.NEWLINE;
-        if (language.isSyntaxSupported() && !IgnoreBundle.Syntax.GLOB.equals(language.getDefaultSyntax())) {
-            content = content + IgnoreBundle.Syntax.GLOB.getPresentation() + Constants.NEWLINE + Constants.NEWLINE;
+        if (language.isSyntaxSupported() && !Syntax.GLOB.equals(language.getDefaultSyntax())) {
+            content = content + Syntax.GLOB.getPresentation() + Constants.NEWLINE + Constants.NEWLINE;
         }
         PsiFile file = factory.createFileFromText(filename, fileType, content);
         return (PsiFile) directory.add(file);

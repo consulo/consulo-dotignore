@@ -52,17 +52,8 @@ public class Icons {
     /** Darcs icon. */
     public static final Image DARCS = DotIgnoreIconGroup.ignore_file();
 
-    /** Dockerignore icon. */
-    public static final Image DOCKER = DotIgnoreIconGroup.ignore_file();
-
-    /** ESLint icon. */
-    public static final Image ESLINT = DotIgnoreIconGroup.ignore_file();
-
     /** ElasticBeanstalk icon. */
     public static final Image ELASTIC_BEANSTALK = DotIgnoreIconGroup.ignore_file();
-
-    /** Git icon. */
-    public static final Image GIT = DotIgnoreIconGroup.ignore_file();
 
     /** Google Cloud icon. */
     public static final Image GCLOUD = DotIgnoreIconGroup.ignore_file();
@@ -76,32 +67,14 @@ public class Icons {
     /** Fossil icon. */
     public static final Image FOSSIL = DotIgnoreIconGroup.ignore_file();
 
-    /** Mercurial icon. */
-    public static final Image MERCURIAL = DotIgnoreIconGroup.ignore_file();
-
     /** Jetpack icon. */
     public static final Image JETPACK = DotIgnoreIconGroup.ignore_file();
-
-    /** JSHint icon. */
-    public static final Image JSHINT = DotIgnoreIconGroup.ignore_file();
 
     /** Monotone icon. */
     public static final Image MONOTONE = DotIgnoreIconGroup.ignore_file();
 
-    /** Nodemon icon. */
-    public static final Image NODEMON = DotIgnoreIconGroup.ignore_file();
-
-    /** Npmignore icon. */
-    public static final Image NPM = DotIgnoreIconGroup.ignore_file();
-
-    /** NuxtJS icon. */
-    public static final Image NUXTJS = DotIgnoreIconGroup.ignore_file();
-
     /** Perforce icon. */
     public static final Image PERFORCE = DotIgnoreIconGroup.ignore_file();
-
-    /** Prettier icon. */
-    public static final Image PRETTIER = DotIgnoreIconGroup.ignore_file();
 
     /** StyleLint icon. */
     public static final Image STYLELINT = DotIgnoreIconGroup.ignore_file();

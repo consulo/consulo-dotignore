@@ -32,6 +32,7 @@ import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.ide.ServiceManager;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.util.collection.ConcurrentList;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Lists;
@@ -40,7 +41,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Singleton;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Constants;
 import mobi.hsz.idea.gitignore.util.Listenable;
 import org.jdom.Element;
@@ -135,14 +135,7 @@ public class IgnoreSettings implements PersistentStateComponent<Element>, Listen
     /** Settings related to the {@link IgnoreLanguage}. */
     @Nonnull
     @SuppressWarnings("checkstyle:whitespacearound")
-    private final IgnoreLanguagesSettings languagesSettings = new IgnoreLanguagesSettings() {{
-        for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
-            put(language, new TreeMap<>() {{
-                put(KEY.NEW_FILE, true);
-                put(KEY.ENABLE, language.isVCS());
-            }});
-        }
-    }};
+    private final IgnoreLanguagesSettings languagesSettings = new IgnoreLanguagesSettings();
 
     /** Lists all user defined templates. */
     private final List<UserTemplate> userTemplates = ContainerUtil.newArrayList(DEFAULT_TEMPLATE);
@@ -269,8 +262,10 @@ public class IgnoreSettings implements PersistentStateComponent<Element>, Listen
                     data.put(key, languageElement.getAttributeValue(key.name()));
                 }
                 String id = languageElement.getAttributeValue(KEY.LANGUAGES_ID.toString());
-                IgnoreLanguage language = IgnoreBundle.LANGUAGES.get(id);
-                languagesSettings.put(language, data);
+                IgnoreLanguage language = id != null ? IgnoreBundle.findLanguage(id) : null;
+                if (language != null) {
+                    languagesSettings.put(language, data);
+                }
             }
         }
 
@@ -282,8 +277,8 @@ public class IgnoreSettings implements PersistentStateComponent<Element>, Listen
         userTemplates.clear();
         userTemplates.addAll(loadTemplates(element));
 
-        for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
-            if (!language.isVCS()) {
+        for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
+            if (!IgnoreBundle.isVCS(language)) {
                 languagesSettings.get(language).put(IgnoreLanguagesSettings.KEY.ENABLE, false);
             }
         }
@@ -700,12 +695,18 @@ public class IgnoreSettings implements PersistentStateComponent<Element>, Listen
         }
 
         /**
-         * Returns the value to which the specified key is mapped.
+         * Returns the value to which the specified key is mapped. Kinds registered after the settings were loaded
+         * get the default values.
          *
          * @param language Ignore language
          */
         public TreeMap<KEY, Object> get(IgnoreLanguage language) {
-            return super.get(language);
+            return computeIfAbsent(language, key -> {
+                TreeMap<KEY, Object> data = new TreeMap<>();
+                data.put(KEY.NEW_FILE, true);
+                data.put(KEY.ENABLE, IgnoreBundle.isVCS(key));
+                return data;
+            });
         }
 
         /**

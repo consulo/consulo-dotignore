@@ -31,6 +31,7 @@ import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.project.Project;
 import consulo.ui.style.StandardColors;
 import consulo.util.lang.ThreeState;
+import consulo.versionControlSystem.change.ChangeListManager;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.status.FileStatus;
 import consulo.virtualFileSystem.status.FileStatusFactory;
@@ -59,9 +60,12 @@ public class IgnoreFileStatusProvider implements FileStatusProvider, DumbAware {
     /** Instance of {@link IgnoreManager}. */
     private final IgnoreManager ignoreManager;
 
+    private final ChangeListManager changeListManager;
+
     @Inject
     public IgnoreFileStatusProvider(@Nonnull Project project) {
         this.ignoreManager = IgnoreManager.getInstance(project);
+        this.changeListManager = ChangeListManager.getInstance(project);
     }
 
     /**
@@ -73,6 +77,10 @@ public class IgnoreFileStatusProvider implements FileStatusProvider, DumbAware {
     @Nullable
     @Override
     public FileStatus getFileStatus(@Nonnull VirtualFile virtualFile) {
+        // the VCS already reports files ignored by the ignore files it owns
+        if (changeListManager.isIgnoredFile(virtualFile)) {
+            return null;
+        }
         return ignoreManager.isFileIgnored(virtualFile) && !ignoreManager.isFileTracked(virtualFile) ? IGNORED : null;
     }
 }

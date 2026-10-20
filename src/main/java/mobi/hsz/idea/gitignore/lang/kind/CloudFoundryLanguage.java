@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.CloudFoundryFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * CloudFoundry {@link IgnoreLanguage} definition.
+ * CloudFoundry {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.3
  */
-public class CloudFoundryLanguage extends IgnoreLanguage {
+public class CloudFoundryLanguage extends DotIgnoreLanguage {
     /** The {@link CloudFoundryLanguage} instance. */
     public static final CloudFoundryLanguage INSTANCE = new CloudFoundryLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private CloudFoundryLanguage() {
         super("CloudFoundry", "cfignore", null, Icons.CLOUD_FOUNDRY);
     }

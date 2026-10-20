@@ -28,12 +28,12 @@ import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
 import consulo.application.dumb.DumbAware;
 import consulo.dotignore.localize.IgnoreLocalize;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.localize.LocalizeValue;
 import consulo.ui.ex.action.DefaultActionGroup;
 import consulo.ui.ex.action.IdeActions;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
@@ -55,7 +55,7 @@ public class NewFileGroupAction extends DefaultActionGroup implements DumbAware 
         super(IgnoreLocalize.actionNewfileGroup(), LocalizeValue.empty(), Icons.IGNORE);
         setPopup(true);
 
-        for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
+        for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
             IgnoreFileType fileType = language.getFileType();
             add(new NewFileAction(
                 IgnoreLocalize.actionNewfile(language.getFilename(), language.getID()),

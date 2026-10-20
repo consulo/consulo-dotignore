@@ -24,24 +24,25 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.Syntax;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.MonotoneFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Monotone {@link IgnoreLanguage} definition.
+ * Monotone {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.0.1
  */
-public class MonotoneLanguage extends IgnoreLanguage {
+public class MonotoneLanguage extends DotIgnoreLanguage {
     /** The {@link MonotoneLanguage} instance. */
     public static final MonotoneLanguage INSTANCE = new MonotoneLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private MonotoneLanguage() {
         super("Monotone", "mtn-ignore", "_MTN", Icons.MONOTONE);
     }
@@ -64,7 +65,7 @@ public class MonotoneLanguage extends IgnoreLanguage {
      */
     @Nonnull
     @Override
-    public IgnoreBundle.Syntax getDefaultSyntax() {
-        return IgnoreBundle.Syntax.REGEXP;
+    public Syntax getDefaultSyntax() {
+        return Syntax.REGEXP;
     }
 }

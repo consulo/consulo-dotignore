@@ -24,29 +24,29 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import consulo.util.collection.ContainerUtil;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.FossilFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.outer.OuterFileFetcher;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Fossil {@link IgnoreLanguage} definition.
+ * Fossil {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.1
  */
-public class FossilLanguage extends IgnoreLanguage {
+public class FossilLanguage extends DotIgnoreLanguage {
     /**
      * The {@link FossilLanguage} instance.
      */
     public static final FossilLanguage INSTANCE = new FossilLanguage();
 
     /**
-     * {@link IgnoreLanguage} is a non-instantiable static class.
+     * {@link DotIgnoreLanguage} is a non-instantiable static class.
      */
     private FossilLanguage() {
         super(
@@ -88,13 +88,4 @@ public class FossilLanguage extends IgnoreLanguage {
         return getExtension();
     }
 
-    /**
-     * Defines if {@link FossilLanguage} supports outer ignore files.
-     *
-     * @return supports outer ignore files
-     */
-    @Override
-    public boolean isOuterFileSupported() {
-        return true;
-    }
 }

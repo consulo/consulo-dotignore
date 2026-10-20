@@ -29,6 +29,7 @@ import consulo.annotation.component.ServiceAPI;
 import consulo.annotation.component.ServiceImpl;
 import consulo.content.FileIndex;
 import consulo.disposer.Disposable;
+import consulo.language.ignore.util.RegexUtil;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.language.psi.search.FilenameIndex;
 import consulo.module.content.ProjectRootManager;
@@ -42,7 +43,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import mobi.hsz.idea.gitignore.util.Constants;
-import mobi.hsz.idea.gitignore.util.MatcherUtil;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -113,7 +113,7 @@ public class FilesIndexCacheProjectComponent implements Disposable {
         private void removeAffectedCaches(@Nonnull VirtualFileEvent event) {
             for (String key : cacheMap.keySet()) {
                 List<String> parts = StringUtil.split(key, Constants.DOLLAR);
-                if (MatcherUtil.matchAnyPart(parts.toArray(new String[0]), event.getFile().getPath())) {
+                if (RegexUtil.matchAnyPart(parts.toArray(new String[0]), event.getFile().getPath())) {
                     cacheMap.remove(key);
                 }
             }
@@ -153,7 +153,7 @@ public class FilesIndexCacheProjectComponent implements Disposable {
     @Nonnull
     public Collection<VirtualFile> getFilesForPattern(@Nonnull Project project, @Nonnull Pattern pattern) {
         GlobalSearchScope scope = GlobalSearchScope.projectScope(project);
-        String[] parts = MatcherUtil.getParts(pattern);
+        String[] parts = RegexUtil.getParts(pattern);
 
         if (parts.length > 0) {
             String key = StringUtil.join(parts, Constants.DOLLAR);
@@ -162,9 +162,9 @@ public class FilesIndexCacheProjectComponent implements Disposable {
 
                 projectFileIndex.iterateContent(fileOrDir -> {
                     String name = fileOrDir.getName();
-                    if (MatcherUtil.matchAnyPart(parts, name)) {
+                    if (RegexUtil.matchAnyPart(parts, name)) {
                         for (VirtualFile file : FilenameIndex.getVirtualFilesByName(project, name, scope)) {
-                            if (file.isValid() && MatcherUtil.matchAllParts(parts, file.getPath())) {
+                            if (file.isValid() && RegexUtil.matchAllParts(parts, file.getPath())) {
                                 files.add(file);
                             }
                         }

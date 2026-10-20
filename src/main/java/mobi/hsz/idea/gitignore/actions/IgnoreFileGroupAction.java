@@ -28,6 +28,8 @@ import consulo.annotation.component.ActionParentRef;
 import consulo.annotation.component.ActionRef;
 import consulo.annotation.component.ActionRefAnchor;
 import consulo.dotignore.localize.IgnoreLocalize;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.ui.ex.action.*;
@@ -37,8 +39,6 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.ExternalFileException;
 import mobi.hsz.idea.gitignore.util.Utils;
 
@@ -125,6 +125,15 @@ public class IgnoreFileGroupAction extends ActionGroup implements AnActionWithSy
      *
      * @param e action event
      */
+    /**
+     * Kinds owned by a VCS plugin already have the VCS "Add to &lt;ignore file&gt;" group.
+     *
+     * @return skip VCS-owned kinds
+     */
+    protected boolean skipVcsOwnedKinds() {
+        return true;
+    }
+
     @Override
     public void update(@Nonnull AnActionEvent e) {
         VirtualFile file = e.getData(VirtualFile.KEY);
@@ -137,7 +146,11 @@ public class IgnoreFileGroupAction extends ActionGroup implements AnActionWithSy
                 presentation.setVisible(true);
                 baseDir = project.getBaseDir();
 
-                for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
+                for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
+                    // kinds owned by a VCS are handled by the VCS "Add to <ignore file>" group
+                    if (skipVcsOwnedKinds() && IgnoreBundle.isOwnedByVcs(language)) {
+                        continue;
+                    }
                     IgnoreFileType fileType = language.getFileType();
                     List<VirtualFile> list = Utils.getSuitableIgnoreFiles(project, fileType, file);
                     Collections.reverse(list);

@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.FloobitsFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Floobits {@link IgnoreLanguage} definition.
+ * Floobits {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.2
  */
-public class FloobitsLanguage extends IgnoreLanguage {
+public class FloobitsLanguage extends DotIgnoreLanguage {
     /** The {@link FloobitsLanguage} instance. */
     public static final FloobitsLanguage INSTANCE = new FloobitsLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private FloobitsLanguage() {
         super("Floobits", "flooignore", null, Icons.FLOOBITS);
     }

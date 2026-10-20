@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.JetpackFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Jetpack {@link IgnoreLanguage} definition.
+ * Jetpack {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.4
  */
-public class JetpackLanguage extends IgnoreLanguage {
+public class JetpackLanguage extends DotIgnoreLanguage {
     /** The {@link JetpackLanguage} instance. */
     public static final JetpackLanguage INSTANCE = new JetpackLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private JetpackLanguage() {
         super("Jetpack", "jpmignore", null, Icons.JETPACK);
     }

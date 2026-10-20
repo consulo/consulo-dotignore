@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.HelmFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Kubernetes Helm {@link IgnoreLanguage} definition.
+ * Kubernetes Helm {@link DotIgnoreLanguage} definition.
  *
  * @author Sergei Ivanov
  * @since 2.0.0
  */
-public class HelmLanguage extends IgnoreLanguage {
+public class HelmLanguage extends DotIgnoreLanguage {
     /** The {@link HelmLanguage} instance. */
     public static final HelmLanguage INSTANCE = new HelmLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private HelmLanguage() {
         super("Kubernetes Helm", "helmignore", null, Icons.HELM);
     }

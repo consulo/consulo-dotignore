@@ -24,10 +24,10 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.SwaggerCodegenFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
@@ -36,11 +36,11 @@ import mobi.hsz.idea.gitignore.util.Icons;
  * @author Jim Schubert <james.schubert@gmail.com>
  * @since 2.0.0
  */
-public class SwaggerCodegenLanguage extends IgnoreLanguage {
+public class SwaggerCodegenLanguage extends DotIgnoreLanguage {
     /** The {@link SwaggerCodegenLanguage} instance */
     public static final SwaggerCodegenLanguage INSTANCE = new SwaggerCodegenLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private SwaggerCodegenLanguage() {
         super("Swagger Codegen", "swagger-codegen-ignore", null, Icons.SWAGGER_CODEGEN);
     }

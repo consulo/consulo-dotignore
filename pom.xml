@@ -201,6 +201,12 @@
 		</dependency>
 		<dependency>
 			<groupId>consulo</groupId>
+			<artifactId>consulo-language-ignore-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>consulo</groupId>
 			<artifactId>consulo-localize-api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
@@ -304,6 +310,12 @@
 		<dependency>
 			<groupId>consulo</groupId>
 			<artifactId>consulo-version-control-system-api</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>consulo</groupId>
+			<artifactId>consulo-version-control-system-distributed-api</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>

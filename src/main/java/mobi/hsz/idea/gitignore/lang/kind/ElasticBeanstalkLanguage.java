@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.ElasticBeanstalkFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * ElasticBeanstalk {@link IgnoreLanguage} definition.
+ * ElasticBeanstalk {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 2.5.0
  */
-public class ElasticBeanstalkLanguage extends IgnoreLanguage {
+public class ElasticBeanstalkLanguage extends DotIgnoreLanguage {
     /** The {@link ElasticBeanstalkLanguage} instance. */
     public static final ElasticBeanstalkLanguage INSTANCE = new ElasticBeanstalkLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private ElasticBeanstalkLanguage() {
         super("ElasticBeanstalk", "ebignore", null, Icons.ELASTIC_BEANSTALK);
     }

@@ -88,26 +88,8 @@ codeInspection.coverEntry:
     text: Cover entry
 codeInspection.coverEntry.message:
     text: '<code>#ref</code> is covered by {0} #loc'
-codeInspection.duplicateEntry:
-    text: Duplicate entry
-codeInspection.duplicateEntry.message:
-    text: '<code>#ref</code> entry is defined more than once #loc'
 codeInspection.group:
     text: Ignore
-codeInspection.incorrectEntry:
-    text: Incorrect entry
-codeInspection.incorrectEntry.message:
-    text: |-
-        <code>#ref</code> has incorrect syntax:
-        {0} #loc
-codeInspection.relativeEntry:
-    text: Relative entry
-codeInspection.relativeEntry.message:
-    text: <code>#ref</code> entry contains relative path
-codeInspection.syntaxEntry:
-    text: Syntax entry
-codeInspection.syntaxEntry.message:
-    text: '<code>#ref</code> has invalid value #loc'
 codeInspection.unusedEntry:
     text: Unused entry
 codeInspection.unusedEntry.message:
@@ -120,8 +102,6 @@ daemon.cancel:
     text: Cancel
 daemon.ignoredEditing:
     text: You are editing a file which is ignored
-daemon.lineMarker.directory:
-    text: Directory entry
 daemon.missingGitignore:
     text: Missing .gitignore file in Git project
 daemon.missingGitignore.create:
@@ -170,26 +150,6 @@ global.generate.without.duplicates:
     text: Generate without _duplicates
 global.ok:
     text: _OK
-highlighter.brackets:
-    text: Brackets
-highlighter.comment:
-    text: Comment
-highlighter.header:
-    text: Header
-highlighter.negation:
-    text: Negation
-highlighter.section:
-    text: Section
-highlighter.slash:
-    text: Slash
-highlighter.syntax:
-    text: Syntax
-highlighter.unused:
-    text: Unused entry
-highlighter.value:
-    text: Value
-ignore.colorSettings.displayName:
-    text: .ignore files
 notification.group:
     text: .ignore plugin
 notification.group.update:
@@ -206,12 +166,8 @@ projectView.ignored:
     text: Ignored (.ignore plugin)
 projectView.tracked:
     text: ignored, tracked with git
-quick.fix.relative.entry:
-    text: Remove relative part
 quick.fix.remove.entry:
     text: Remove entry
-quick.fix.syntax.entry:
-    text: Suggest correct value
 settings.displayName:
     text: .ignore files
 settings.general:
@@ -273,19 +229,3 @@ template.container.starred:
     text: Starred templates
 template.container.user:
     text: User templates
-token.type.bracket.left:
-    text: <left bracket>
-token.type.bracket.right:
-    text: <right bracket>
-token.type.comment:
-    text: <comment>
-token.type.empty.line:
-    text: <empty line>
-token.type.header:
-    text: <header>
-token.type.section:
-    text: <section>
-token.type.slash:
-    text: <slash>
-token.type.value:
-    text: <value>

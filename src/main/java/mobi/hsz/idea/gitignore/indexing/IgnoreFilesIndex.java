@@ -28,6 +28,12 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.Application;
 import consulo.index.io.ID;
 import consulo.index.io.data.DataExternalizer;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
+import consulo.language.ignore.cache.PatternCache;
+import consulo.language.ignore.psi.IgnoreEntry;
+import consulo.language.ignore.psi.IgnoreFile;
+import consulo.language.ignore.psi.IgnoreVisitor;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.language.psi.stub.FileBasedIndex;
 import consulo.language.psi.stub.FileContent;
@@ -38,12 +44,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
 import mobi.hsz.idea.gitignore.IgnoreManager;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
-import mobi.hsz.idea.gitignore.psi.IgnoreEntry;
-import mobi.hsz.idea.gitignore.psi.IgnoreFile;
-import mobi.hsz.idea.gitignore.psi.IgnoreVisitor;
-import mobi.hsz.idea.gitignore.util.Glob;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -63,7 +63,7 @@ public class IgnoreFilesIndex extends AbstractIgnoreFilesIndex<IgnoreFileTypeKey
     public static final ID<IgnoreFileTypeKey, IgnoreEntryOccurrence> KEY = ID.create("IgnoreFilesIndex");
 
     /** Current indexer version. Has to be increased if significant changes have been done. */
-    private static final int VERSION = 5;
+    private static final int VERSION = 6;
 
     /**
      * Returns indexer's name.
@@ -93,7 +93,7 @@ public class IgnoreFilesIndex extends AbstractIgnoreFilesIndex<IgnoreFileTypeKey
         inputData.getPsiFile().acceptChildren(new IgnoreVisitor() {
             @Override
             public void visitEntry(@Nonnull IgnoreEntry entry) {
-                String regex = Glob.getRegex(entry.getValue(), entry.getSyntax(), false);
+                String regex = PatternCache.getInstance(entry.getProject()).getRegex(entry.getValue(), entry.getSyntax(), false);
                 items.add(Pair.create(regex, entry.isNegated()));
             }
         });
@@ -113,7 +113,7 @@ public class IgnoreFilesIndex extends AbstractIgnoreFilesIndex<IgnoreFileTypeKey
      */
     @Override
     public synchronized void save(@Nonnull DataOutput out, IgnoreFileTypeKey value) throws IOException {
-        out.writeUTF(value.getType().getLanguageName());
+        out.writeUTF(value.getType().getLanguage().getID());
     }
 
     /**
@@ -126,9 +126,9 @@ public class IgnoreFilesIndex extends AbstractIgnoreFilesIndex<IgnoreFileTypeKey
     @Override
     public synchronized IgnoreFileTypeKey read(@Nonnull DataInput in) throws IOException {
         String languageName = in.readUTF();
-        for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
+        for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
             IgnoreFileType type = language.getFileType();
-            if (type.getLanguageName().equals(languageName)) {
+            if (type.getLanguage().getID().equals(languageName)) {
                 return new IgnoreFileTypeKey(type);
             }
         }

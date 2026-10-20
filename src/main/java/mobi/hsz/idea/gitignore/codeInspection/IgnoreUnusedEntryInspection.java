@@ -30,6 +30,10 @@ import consulo.dotignore.codeInspection.IgnoreInspection;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.language.editor.inspection.ProblemsHolder;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.language.ignore.cache.PatternCache;
+import consulo.language.ignore.psi.IgnoreEntry;
+import consulo.language.ignore.psi.IgnoreVisitor;
+import consulo.language.ignore.util.RegexUtil;
 import consulo.language.psi.PsiElementVisitor;
 import consulo.language.psi.PsiPolyVariantReference;
 import consulo.language.psi.PsiReference;
@@ -41,9 +45,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.FilesIndexCacheProjectComponent;
 import mobi.hsz.idea.gitignore.IgnoreManager;
-import mobi.hsz.idea.gitignore.psi.IgnoreEntry;
-import mobi.hsz.idea.gitignore.psi.IgnoreVisitor;
-import mobi.hsz.idea.gitignore.util.Glob;
 import mobi.hsz.idea.gitignore.util.Utils;
 
 import java.util.ArrayList;
@@ -126,7 +127,7 @@ public class IgnoreUnusedEntryInspection extends IgnoreInspection {
              */
             @RequiredReadAction
             private boolean isEntryExcluded(@Nonnull IgnoreEntry entry, @Nonnull Project project) {
-                Pattern pattern = Glob.createPattern(entry);
+                Pattern pattern = PatternCache.getInstance(entry.getProject()).createPattern(entry);
                 if (pattern == null) {
                     return false;
                 }
@@ -146,7 +147,7 @@ public class IgnoreUnusedEntryInspection extends IgnoreInspection {
                             continue;
                         }
                         String path = Utils.getRelativePath(projectRoot, root);
-                        if (manager.getMatcher().match(pattern, path)) {
+                        if (RegexUtil.match(pattern, path)) {
                             matched.add(file);
                             return false;
                         }

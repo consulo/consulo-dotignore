@@ -39,6 +39,7 @@ import consulo.fileChooser.FileChooserFactory;
 import consulo.fileChooser.FileSaverDescriptor;
 import consulo.fileChooser.IdeaFileChooser;
 import consulo.language.editor.LangDataKeys;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.localize.LocalizeValue;
 import consulo.module.Module;
 import consulo.platform.base.icon.PlatformIconGroup;
@@ -59,20 +60,19 @@ import consulo.virtualFileSystem.archive.ArchiveFileType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 import mobi.hsz.idea.gitignore.util.Constants;
 import mobi.hsz.idea.gitignore.util.Utils;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
 
 import static mobi.hsz.idea.gitignore.settings.IgnoreSettings.IgnoreLanguagesSettings.KEY.ENABLE;
 import static mobi.hsz.idea.gitignore.settings.IgnoreSettings.IgnoreLanguagesSettings.KEY.NEW_FILE;
@@ -149,7 +149,7 @@ public class IgnoreSettingsPanel implements Disposable {
         languagesTable.setRowHeight(22);
         languagesTable.setPreferredScrollableViewportSize(new Dimension(
             -1,
-            languagesTable.getRowHeight() * IgnoreBundle.LANGUAGES.size() / 2
+            languagesTable.getRowHeight() * IgnoreBundle.getLanguages().size() / 2
         ));
 
         languagesTable.setStriped(true);

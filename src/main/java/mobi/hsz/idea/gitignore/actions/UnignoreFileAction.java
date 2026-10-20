@@ -24,10 +24,10 @@
 package mobi.hsz.idea.gitignore.actions;
 
 import consulo.dotignore.localize.IgnoreLocalize;
+import consulo.language.ignore.IgnoreFileType;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.util.Utils;
 
 /**

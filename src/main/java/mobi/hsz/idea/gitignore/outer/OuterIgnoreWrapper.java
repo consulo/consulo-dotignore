@@ -33,24 +33,25 @@ import consulo.disposer.Disposable;
 import consulo.document.Document;
 import consulo.document.FileDocumentManager;
 import consulo.dotignore.localize.IgnoreLocalize;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.project.Project;
 import consulo.ui.ex.awt.*;
 import consulo.virtualFileSystem.VirtualFile;
 import consulo.virtualFileSystem.util.VirtualFileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 import mobi.hsz.idea.gitignore.util.Utils;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  * Wrapper that creates bottom editor component for displaying outer ignore rules.
@@ -110,7 +111,9 @@ public class OuterIgnoreWrapper extends MouseAdapter implements ChangeListener, 
     public OuterIgnoreWrapper(
         @Nonnull Project project,
         @Nonnull IgnoreLanguage language,
-        @Nonnull List<VirtualFile> outerFiles
+        @Nonnull List<VirtualFile> outerFiles,
+        @Nonnull Map<VirtualFile, Document> documents,
+        @Nullable String userHomePath
     ) {
         this.outerFiles = outerFiles;
         settings = IgnoreSettings.getInstance();
@@ -138,10 +141,8 @@ public class OuterIgnoreWrapper extends MouseAdapter implements ChangeListener, 
             null,
             (aSource, aLinkData) -> Utils.openFile(project, outerFiles.get(tabbedPanel.getSelectedIndex()))
         );
-        VirtualFile userHomeDir = VirtualFileUtil.getUserHomeDir();
-
         for (VirtualFile outerFile : outerFiles) {
-            Document document = FileDocumentManager.getInstance().getDocument(outerFile);
+            Document document = documents.get(outerFile);
             Editor outerEditor = document != null ? Utils.createPreviewEditor(document, null, true) : null;
 
             if (outerEditor != null) {
@@ -150,8 +151,8 @@ public class OuterIgnoreWrapper extends MouseAdapter implements ChangeListener, 
                 scrollPanel.setPreferredSize(new Dimension(0, settings.getOuterIgnoreWrapperHeight()));
 
                 String path = outerFile.getPath();
-                if (userHomeDir != null) {
-                    path = path.replace(userHomeDir.getPath(), "~");
+                if (userHomePath != null) {
+                    path = path.replace(userHomePath, "~");
                 }
 
                 tabbedPanel.addTab(path, language.getIcon(), scrollPanel, outerFile.getCanonicalPath());

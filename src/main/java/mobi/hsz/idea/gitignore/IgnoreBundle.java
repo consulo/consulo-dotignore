@@ -24,118 +24,140 @@
 
 package mobi.hsz.idea.gitignore;
 
+import consulo.dotignore.git.GitOuterFileFetchers;
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
+import consulo.project.Project;
+import consulo.project.ProjectManager;
 import consulo.util.collection.ContainerUtil;
+import consulo.versionControlSystem.change.IgnoredFileContentProvider;
 import consulo.virtualFileSystem.VirtualFile;
-import jakarta.annotation.Nonnull;
-import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
-import mobi.hsz.idea.gitignore.lang.kind.*;
+import consulo.virtualFileSystem.fileType.FileType;
+import consulo.virtualFileSystem.fileType.FileTypeRegistry;
+import mobi.hsz.idea.gitignore.outer.OuterFileFetcher;
+import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 import mobi.hsz.idea.gitignore.util.CachedConcurrentMap;
+import mobi.hsz.idea.gitignore.util.ExpiringMap;
+import mobi.hsz.idea.gitignore.util.Utils;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * {@link ResourceBundle}/localization utils for the .ignore support plugin.
+ * Discovery of the ignore kinds: every {@link IgnoreFileType} registered by any plugin (platform, VCS plugins,
+ * the .ignore plugin itself). The .ignore plugin features work over these kinds and never reference
+ * a kind class it does not own.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 0.4
  */
 public class IgnoreBundle {
-    /** {@link IgnoreBundle} is a non-instantiable static class. */
     private IgnoreBundle() {
     }
 
-    /** Available IgnoreFileType instances. */
-    public static final IgnoreLanguages LANGUAGES = new IgnoreLanguages(Arrays.asList(
-        BazaarLanguage.INSTANCE,
-        CloudFoundryLanguage.INSTANCE,
-        ChefLanguage.INSTANCE,
-        CvsLanguage.INSTANCE,
-        DarcsLanguage.INSTANCE,
-        DockerLanguage.INSTANCE,
-        ElasticBeanstalkLanguage.INSTANCE,
-        ESLintLanguage.INSTANCE,
-        FloobitsLanguage.INSTANCE,
-        FossilLanguage.INSTANCE,
-        GitLanguage.INSTANCE,
-        GitExcludeLanguage.INSTANCE,
-        GoogleCloudLanguage.INSTANCE,
-        HelmLanguage.INSTANCE,
-        JetpackLanguage.INSTANCE,
-        JSHintLanguage.INSTANCE,
-        MercurialLanguage.INSTANCE,
-        MonotoneLanguage.INSTANCE,
-        NodemonLanguage.INSTANCE,
-        NpmLanguage.INSTANCE,
-        NuxtJSLanguage.INSTANCE,
-        PerforceLanguage.INSTANCE,
-        PrettierLanguage.INSTANCE,
-        StyleLintLanguage.INSTANCE,
-        StylintLanguage.INSTANCE,
-        SwaggerCodegenLanguage.INSTANCE,
-        TFLanguage.INSTANCE,
-        UpLanguage.INSTANCE
-    ));
+    /**
+     * Git ignore file name.
+     */
+    public static final String GITIGNORE = ".gitignore";
 
-    /** Available IgnoreFileType instances filtered with {@link IgnoreLanguage#isVCS()} condition. */
-    public static final IgnoreLanguages VCS_LANGUAGES = new IgnoreLanguages(
-        ContainerUtil.filter(LANGUAGES, IgnoreLanguage::isVCS)
-    );
+    /**
+     * Git directory name.
+     */
+    public static final String DOT_GIT = ".git";
 
-    /** Contains information about enabled/disabled languages. */
-    public static final CachedConcurrentMap<IgnoreFileType, Boolean> ENABLED_LANGUAGES = CachedConcurrentMap.create(
-        key -> key.getIgnoreLanguage().isEnabled()
-    );
+    /**
+     * Enabled languages cache.
+     */
+    public static final CachedConcurrentMap<IgnoreFileType, Boolean> ENABLED_LANGUAGES =
+        CachedConcurrentMap.create(key -> isEnabled(key.getIgnoreLanguage()));
 
-    /** Available syntax list. */
-    public enum Syntax {
-        GLOB,
-        REGEXP;
+    /**
+     * Outer files cache.
+     */
+    private static final ExpiringMap<Integer, Set<VirtualFile>> OUTER_FILES = new ExpiringMap<>(5000);
 
-        private static final String KEY = "syntax:";
+    /**
+     * Registered ignore kinds, file types are registered once on startup.
+     */
+    private static volatile @Nullable List<IgnoreLanguage> ourLanguages;
 
-        @Nullable
-        public static Syntax find(@Nullable String name) {
-            if (name == null) {
-                return null;
-            }
-            try {
-                return Syntax.valueOf(name.toUpperCase());
-            }
-            catch (IllegalArgumentException iae) {
-                return null;
+    /**
+     * Ignore kinds owned by a VCS, see {@link #findContentProvider(IgnoreLanguage)}.
+     */
+    private static final Map<IgnoreLanguage, Boolean> OUR_VCS_OWNED = new ConcurrentHashMap<>();
+
+    /**
+     * Returns all registered ignore kinds.
+     *
+     * @return ignore languages
+     */
+    public static List<IgnoreLanguage> getLanguages() {
+        List<IgnoreLanguage> languages = ourLanguages;
+        if (languages == null) {
+            languages = collectLanguages();
+            ourLanguages = languages;
+        }
+        return languages;
+    }
+
+    private static List<IgnoreLanguage> collectLanguages() {
+        Set<IgnoreLanguage> languages = new LinkedHashSet<>();
+        for (FileType fileType : FileTypeRegistry.getInstance().getRegisteredFileTypes()) {
+            if (fileType instanceof IgnoreFileType ignoreFileType && ignoreFileType.getIgnoreLanguage() != IgnoreLanguage.INSTANCE) {
+                languages.add(ignoreFileType.getIgnoreLanguage());
             }
         }
-
-        @Override
-        public String toString() {
-            return super.toString().toLowerCase();
-        }
-
-        /**
-         * Returns {@link mobi.hsz.idea.gitignore.psi.IgnoreTypes#SYNTAX} element presentation.
-         *
-         * @return element presentation
-         */
-        public String getPresentation() {
-            return KEY + " " + toString();
-        }
+        List<IgnoreLanguage> result = new ArrayList<>(languages);
+        result.sort(Comparator.comparing(IgnoreLanguage::getID, String.CASE_INSENSITIVE_ORDER));
+        return List.copyOf(result);
     }
 
     /**
-     * Returns {@link IgnoreLanguage} matching to the given {@link VirtualFile}.
+     * Returns all registered ignore kinds related to the VCS.
      *
-     * @param file to obtain
-     * @return matching language
+     * @return VCS ignore languages
      */
-    @Nullable
-    public static IgnoreLanguage obtainLanguage(@Nonnull VirtualFile file) {
+    public static List<IgnoreLanguage> getVcsLanguages() {
+        return ContainerUtil.filter(getLanguages(), IgnoreBundle::isVCS);
+    }
+
+    /**
+     * Finds the ignore kind by its ID.
+     *
+     * @param id language ID
+     * @return ignore language or <code>null</code>
+     */
+    public static @Nullable IgnoreLanguage findLanguage(String id) {
+        for (IgnoreLanguage language : getLanguages()) {
+            if (id.equals(language.getID())) {
+                return language;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ignore kind of the given file.
+     *
+     * @param file file to check
+     * @return ignore language or <code>null</code>
+     */
+    public static @Nullable IgnoreLanguage obtainLanguage(VirtualFile file) {
+        if (file.getFileType() instanceof IgnoreFileType ignoreFileType) {
+            return ignoreFileType.getIgnoreLanguage();
+        }
         String filename = file.getName();
-        for (IgnoreLanguage language : LANGUAGES) {
+        for (IgnoreLanguage language : getLanguages()) {
             if (language.getFilename().equals(filename)) {
                 return language;
             }
@@ -144,21 +166,160 @@ public class IgnoreBundle {
     }
 
     /**
-     * Simple {@link ArrayList} with method to find {@link IgnoreLanguage} by its name.
+     * Returns the ignore kind registered for {@code .gitignore} files, if any.
+     *
+     * @return gitignore file type
      */
-    public static class IgnoreLanguages extends ArrayList<IgnoreLanguage> {
-        public IgnoreLanguages(List<IgnoreLanguage> languages) {
-            super(languages);
-        }
+    public static @Nullable IgnoreFileType findGitIgnoreFileType() {
+        return FileTypeRegistry.getInstance().getFileTypeByFileName(GITIGNORE) instanceof IgnoreFileType fileType ? fileType : null;
+    }
 
-        @Nullable
-        public IgnoreLanguage get(@Nonnull String id) {
-            for (IgnoreLanguage language : this) {
-                if (id.equals(language.getID())) {
-                    return language;
-                }
-            }
-            return null;
+    /**
+     * Ignore kinds of the .ignore plugin say themselves whether they belong to a VCS, other kinds belong to a VCS
+     * when a VCS plugin provides the content of that ignore file.
+     *
+     * @param language ignore language
+     * @return language is related to the VCS
+     */
+    public static boolean isVCS(IgnoreLanguage language) {
+        if (language instanceof DotIgnoreLanguage dotIgnoreLanguage) {
+            return dotIgnoreLanguage.isVCS();
         }
+        return isOwnedByVcs(language);
+    }
+
+    /**
+     * Ignore kinds owned by a VCS plugin get their "Add to ignore file" actions and ignored status from the VCS.
+     *
+     * @param language ignore language
+     * @return a VCS plugin provides the content of that ignore file
+     */
+    public static boolean isOwnedByVcs(IgnoreLanguage language) {
+        if (language instanceof DotIgnoreLanguage) {
+            return false;
+        }
+        return OUR_VCS_OWNED.computeIfAbsent(language, it -> findContentProvider(it) != null);
+    }
+
+    /**
+     * Returns the {@link IgnoredFileContentProvider} that owns the given ignore kind.
+     *
+     * @param language ignore language
+     * @return provider or <code>null</code> if the kind is not owned by a VCS
+     */
+    public static @Nullable IgnoredFileContentProvider findContentProvider(IgnoreLanguage language) {
+        Project project = ProjectManager.getInstance().getDefaultProject();
+        String filename = language.getFilename();
+        return project.getExtensionPoint(IgnoredFileContentProvider.class).findFirstSafe(it -> filename.equals(it.getFileName()));
+    }
+
+    /**
+     * Returns Ignore VCS directory name.
+     *
+     * @param language ignore language
+     * @return VCS directory name
+     */
+    public static @Nullable String getVcsDirectory(IgnoreLanguage language) {
+        return language instanceof DotIgnoreLanguage dotIgnoreLanguage ? dotIgnoreLanguage.getVcsDirectory() : null;
+    }
+
+    /**
+     * Returns fixed directory for the given {@link IgnoreLanguage}.
+     *
+     * @param project  current project
+     * @param language ignore language
+     * @return fixed directory
+     */
+    public static @Nullable VirtualFile getFixedDirectory(Project project, IgnoreLanguage language) {
+        if (language instanceof DotIgnoreLanguage dotIgnoreLanguage) {
+            return dotIgnoreLanguage.getFixedDirectory(project);
+        }
+        if (Utils.isGitPluginEnabled()) {
+            return GitOuterFileFetchers.getFixedDirectory(project, language);
+        }
+        return null;
+    }
+
+    /**
+     * Returns outer files fetchers of the given ignore kind.
+     *
+     * @param language ignore language
+     * @return fetchers
+     */
+    public static List<OuterFileFetcher> getOuterFileFetchers(IgnoreLanguage language) {
+        List<OuterFileFetcher> fetchers = new ArrayList<>();
+        if (language instanceof DotIgnoreLanguage dotIgnoreLanguage) {
+            ContainerUtil.addAll(fetchers, dotIgnoreLanguage.getOuterFileFetchers());
+        }
+        if (Utils.isGitPluginEnabled()) {
+            fetchers.addAll(GitOuterFileFetchers.forLanguage(language));
+        }
+        return fetchers;
+    }
+
+    /**
+     * Returns <code>true</code> if outer files are supported.
+     *
+     * @param language ignore language
+     * @return supports outer files
+     */
+    public static boolean isOuterFileSupported(IgnoreLanguage language) {
+        return !getOuterFileFetchers(language).isEmpty();
+    }
+
+    /**
+     * Returns outer files for the current language.
+     *
+     * @param project  current project
+     * @param language ignore language
+     * @return outer files
+     */
+    public static Set<VirtualFile> getOuterFiles(Project project, IgnoreLanguage language) {
+        int key = Objects.hash(project, language.getFileType());
+        Set<VirtualFile> files = OUTER_FILES.get(key);
+        if (files == null) {
+            files = new HashSet<>();
+            for (OuterFileFetcher fetcher : getOuterFileFetchers(language)) {
+                ContainerUtil.addAllNotNull(files, fetcher.fetch(project));
+            }
+            OUTER_FILES.set(key, files);
+        }
+        return OUTER_FILES.getOrElse(key, new HashSet<>());
+    }
+
+    /**
+     * Checks is language is enabled or with {@link IgnoreSettings}.
+     *
+     * @param language ignore language
+     * @return language is enabled
+     */
+    public static boolean isEnabled(IgnoreLanguage language) {
+        Map<IgnoreSettings.IgnoreLanguagesSettings.KEY, Object> data = IgnoreSettings.getInstance().getLanguagesSettings().get(language);
+        return data != null && Boolean.parseBoolean(String.valueOf(data.get(IgnoreSettings.IgnoreLanguagesSettings.KEY.ENABLE)));
+    }
+
+    /**
+     * Checks if creating new file for given language is allowed with the settings.
+     *
+     * @param language ignore language
+     * @return new file is allowed
+     */
+    public static boolean isNewAllowed(IgnoreLanguage language) {
+        Map<IgnoreSettings.IgnoreLanguagesSettings.KEY, Object> data = IgnoreSettings.getInstance().getLanguagesSettings().get(language);
+        return data != null && Boolean.parseBoolean(String.valueOf(data.get(IgnoreSettings.IgnoreLanguagesSettings.KEY.NEW_FILE)));
+    }
+
+    /**
+     * Returns outer files of all registered kinds.
+     *
+     * @param project current project
+     * @return outer files
+     */
+    public static Collection<VirtualFile> getAllOuterFiles(Project project) {
+        Set<VirtualFile> result = new HashSet<>();
+        for (IgnoreLanguage language : getLanguages()) {
+            result.addAll(getOuterFiles(project, language));
+        }
+        return result;
     }
 }

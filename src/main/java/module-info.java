@@ -22,6 +22,7 @@ open module mobi.hsz.idea.gitignore {
     requires consulo.language.api;
     requires consulo.language.editor.api;
     requires consulo.language.impl;
+    requires consulo.language.ignore.api;
     requires consulo.localize.api;
     requires consulo.logging.api;
     requires consulo.module.api;
@@ -46,6 +47,7 @@ open module mobi.hsz.idea.gitignore {
     requires org.apache.commons.lang3;
 
     requires static com.intellij.git;
+    requires static consulo.version.control.system.distributed.api;
 
     // TODO remove in future
     requires java.desktop;

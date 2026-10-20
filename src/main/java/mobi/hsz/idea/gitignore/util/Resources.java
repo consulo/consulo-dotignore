@@ -31,7 +31,6 @@ import consulo.logging.Logger;
 import consulo.util.io.FileUtil;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.lang.kind.GitLanguage;
 import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 
 import java.io.File;
@@ -47,6 +46,11 @@ import java.util.List;
  * @since 0.2
  */
 public class Resources {
+    /**
+     * Templates are GitHub gitignore templates: {@code <name>.gitignore}.
+     */
+    private static final String GITIGNORE = ".gitignore";
+
     private static final Logger LOG = Logger.getInstance(Resources.class);
 
 
@@ -176,7 +180,7 @@ public class Resources {
          */
         public Template(@Nonnull File file, @Nullable String content) {
             this.file = file;
-            this.name = file.getName().replace(GitLanguage.INSTANCE.getFilename(), "");
+            this.name = file.getName().replace(GITIGNORE, "");
             this.content = content;
             this.container = file.getParent().endsWith("Global") ? Container.GLOBAL : Container.ROOT;
         }

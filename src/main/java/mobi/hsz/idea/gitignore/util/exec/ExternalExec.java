@@ -42,8 +42,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import git4idea.config.GitExecutableManager;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
-import mobi.hsz.idea.gitignore.lang.kind.GitLanguage;
 import mobi.hsz.idea.gitignore.util.Utils;
 import mobi.hsz.idea.gitignore.util.exec.parser.ExecutionOutputParser;
 import mobi.hsz.idea.gitignore.util.exec.parser.GitExcludesOutputParser;
@@ -73,16 +71,16 @@ public class ExternalExec {
     private static final boolean GIT_ENABLED = Utils.isGitPluginEnabled();
 
     /** Git command to get user's excludesfile path. */
-    private static final String GIT_CONFIG_EXCLUDES_FILE = "config --global core.excludesfile";
+    private static final List<String> GIT_CONFIG_EXCLUDES_FILE = List.of("config", "--global", "core.excludesfile");
 
     /** Git command to list unversioned files. */
-    private static final String GIT_UNIGNORED_FILES = "clean -dn";
+    private static final List<String> GIT_UNIGNORED_FILES = List.of("clean", "-dn");
 
     /** Git command to list ignored but tracked files. */
-    private static final String GIT_IGNORED_FILES = "ls-files -i --exclude-standard";
+    private static final List<String> GIT_IGNORED_FILES = List.of("ls-files", "-i", "--exclude-standard");
 
     /** Git command to remove file from tracking. */
-    private static final String GIT_REMOVE_FILE_FROM_TRACKING = "rm --cached --force";
+    private static final List<String> GIT_REMOVE_FILE_FROM_TRACKING = List.of("rm", "--cached", "--force");
 
     /**
      * Returns {@link VirtualFile} instance of the Git excludes file if available.
@@ -91,29 +89,23 @@ public class ExternalExec {
      */
     @Nullable
     public static VirtualFile getGitExcludesFile() {
-        return runForSingle(GitLanguage.INSTANCE, GIT_CONFIG_EXCLUDES_FILE, null, new GitExcludesOutputParser());
+        return runForSingle(GIT_CONFIG_EXCLUDES_FILE, null, new GitExcludesOutputParser());
     }
 
     /**
      * Returns list of unignored files for the given directory.
      *
-     * @param language to check
      * @param project  current project
      * @param file     current file
      * @return unignored files list
      */
     @Nonnull
-    public static List<String> getUnignoredFiles(
-        @Nonnull IgnoreLanguage language,
-        @Nonnull Project project,
-        @Nonnull VirtualFile file
-    ) {
+    public static List<String> getUnignoredFiles(@Nonnull Project project, @Nonnull VirtualFile file) {
         if (!Utils.isInProject(file, project)) {
             return new ArrayList<>();
         }
 
         ArrayList<String> result = run(
-            language,
             GIT_UNIGNORED_FILES,
             file.getParent(),
             new GitUnignoredFilesOutputParser()
@@ -130,7 +122,6 @@ public class ExternalExec {
     @Nonnull
     public static List<String> getIgnoredFiles(@Nonnull VcsRoot vcsRoot) {
         ArrayList<String> result = run(
-            GitLanguage.INSTANCE,
             GIT_IGNORED_FILES,
             vcsRoot.getPath(),
             new SimpleOutputParser()
@@ -147,21 +138,20 @@ public class ExternalExec {
     public static void removeFileFromTracking(@Nonnull VirtualFile file, @Nonnull VcsRoot vcsRoot) {
         VirtualFile root = vcsRoot.getPath();
         if (root != null) {
-            String command = GIT_REMOVE_FILE_FROM_TRACKING + " " + Utils.getRelativePath(root, file);
-            run(GitLanguage.INSTANCE, command, root);
+            List<String> command = new ArrayList<>(GIT_REMOVE_FILE_FROM_TRACKING);
+            command.add(Utils.getRelativePath(root, file));
+            run(command, root);
         }
     }
 
     /**
-     * Returns path to the {@link IgnoreLanguage} binary or null if not available.
-     * Currently only  {@link GitLanguage} is supported.
+     * Returns path to the git binary or null if not available.
      *
-     * @param language current language
      * @return path to binary
      */
     @Nullable
-    private static String bin(@Nonnull IgnoreLanguage language) {
-        if (GitLanguage.INSTANCE.equals(language) && GIT_ENABLED) {
+    private static String bin() {
+        if (GIT_ENABLED) {
             String bin = GitExecutableManager.getInstance().getPathToGit();
             return StringUtil.nullize(bin);
         }
@@ -169,9 +159,8 @@ public class ExternalExec {
     }
 
     /**
-     * Runs {@link IgnoreLanguage} executable with the given command and current working directory.
+     * Runs git executable with the given command and current working directory.
      *
-     * @param language  current language
      * @param command   to call
      * @param directory current working directory
      * @param parser    {@link ExecutionOutputParser} implementation
@@ -180,33 +169,26 @@ public class ExternalExec {
      */
     @Nullable
     private static <T> T runForSingle(
-        @Nonnull IgnoreLanguage language,
-        @Nonnull String command,
+        @Nonnull List<String> command,
         @Nullable VirtualFile directory,
         @Nonnull ExecutionOutputParser<T> parser
     ) {
-        return ContainerUtil.getFirstItem(run(language, command, directory, parser));
+        return ContainerUtil.getFirstItem(run(command, directory, parser));
     }
 
     /**
-     * Runs {@link IgnoreLanguage} executable with the given command and current working directory.
+     * Runs git executable with the given command and current working directory.
      *
-     * @param language  current language
      * @param command   to call
      * @param directory current working directory
      */
-    private static void run(
-        @Nonnull IgnoreLanguage language,
-        @Nonnull String command,
-        @Nullable VirtualFile directory
-    ) {
-        run(language, command, directory, null);
+    private static void run(@Nonnull List<String> command, @Nullable VirtualFile directory) {
+        run(command, directory, null);
     }
 
     /**
-     * Runs {@link IgnoreLanguage} executable with the given command and current working directory.
+     * Runs git executable with the given command and current working directory.
      *
-     * @param language  current language
      * @param command   to call
      * @param directory current working directory
      * @param parser    {@link ExecutionOutputParser} implementation
@@ -215,12 +197,11 @@ public class ExternalExec {
      */
     @Nullable
     private static <T> ArrayList<T> run(
-        @Nonnull IgnoreLanguage language,
-        @Nonnull String command,
+        @Nonnull List<String> command,
         @Nullable VirtualFile directory,
         @Nullable ExecutionOutputParser<T> parser
     ) {
-        String bin = bin(language);
+        String bin = bin();
         if (bin == null) {
             return null;
         }
@@ -228,7 +209,8 @@ public class ExternalExec {
         try {
             File workingDirectory = directory != null ? new File(directory.getPath()) : null;
 
-            GeneralCommandLine commandLine = new GeneralCommandLine(bin, command);
+            GeneralCommandLine commandLine = new GeneralCommandLine(bin);
+            commandLine.addParameters(command);
             if (workingDirectory != null) {
                 commandLine.withWorkDirectory(workingDirectory);
             }

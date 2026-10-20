@@ -24,19 +24,19 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.PerforceFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Perforce {@link IgnoreLanguage} definition.
+ * Perforce {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.1
  */
-public class PerforceLanguage extends IgnoreLanguage {
+public class PerforceLanguage extends DotIgnoreLanguage {
     /** The {@link mobi.hsz.idea.gitignore.lang.kind.PerforceLanguage} instance. */
     public static final PerforceLanguage INSTANCE = new PerforceLanguage();
 

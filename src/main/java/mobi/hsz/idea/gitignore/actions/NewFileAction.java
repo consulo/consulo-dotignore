@@ -27,6 +27,7 @@ import consulo.application.dumb.DumbAware;
 import consulo.dotignore.IgnoreNotificationGroup;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.language.editor.util.IdeView;
+import consulo.language.ignore.IgnoreFileType;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
@@ -41,8 +42,8 @@ import consulo.ui.image.Image;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import mobi.hsz.idea.gitignore.IgnoreBundle;
 import mobi.hsz.idea.gitignore.command.CreateFileCommandAction;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.ui.GeneratorDialog;
 import mobi.hsz.idea.gitignore.util.Utils;
 
@@ -84,7 +85,7 @@ public class NewFileAction extends AnAction implements DumbAware, AnActionWithSy
         Project project = e.getRequiredData(Project.KEY);
         IdeView view = e.getRequiredData(IdeView.KEY);
 
-        VirtualFile fixedDirectory = fileType.getIgnoreLanguage().getFixedDirectory(project);
+        VirtualFile fixedDirectory = IgnoreBundle.getFixedDirectory(project, fileType.getIgnoreLanguage());
         PsiDirectory directory;
 
         if (fixedDirectory != null) {
@@ -110,7 +111,7 @@ public class NewFileAction extends AnAction implements DumbAware, AnActionWithSy
         else {
             project.getApplication().getInstance(NotificationService.class)
                 .newInfo(IgnoreNotificationGroup.GROUP)
-                .title(IgnoreLocalize.actionNewfileExists(fileType.getLanguageName()))
+                .title(IgnoreLocalize.actionNewfileExists(fileType.getLanguage().getID()))
                 .content(IgnoreLocalize.actionNewfileExistsIn(virtualFile.getPath()))
                 .notify(project);
 
@@ -140,7 +141,7 @@ public class NewFileAction extends AnAction implements DumbAware, AnActionWithSy
 
         PsiDirectory[] directory = view != null ? view.getDirectories() : null;
         if (directory == null || directory.length == 0 || !e.hasData(Project.KEY)
-            || !this.fileType.getIgnoreLanguage().isNewAllowed()) {
+            || !IgnoreBundle.isNewAllowed(this.fileType.getIgnoreLanguage())) {
             e.getPresentation().setVisible(false);
         }
     }

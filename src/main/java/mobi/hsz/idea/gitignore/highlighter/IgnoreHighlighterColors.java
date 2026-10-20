@@ -24,6 +24,7 @@
 
 package mobi.hsz.idea.gitignore.highlighter;
 
+import consulo.codeEditor.CodeInsightColors;
 import consulo.colorScheme.TextAttributesKey;
 
 /**
@@ -33,30 +34,7 @@ import consulo.colorScheme.TextAttributesKey;
  * @since 0.2.2
  */
 public class IgnoreHighlighterColors {
-    /** Default style for regular comment started with # */
-    public static final TextAttributesKey COMMENT = TextAttributesKey.createTextAttributesKey("IGNORE.COMMENT");
-
-    /** Default style for section comment started with ## */
-    public static final TextAttributesKey SECTION = TextAttributesKey.createTextAttributesKey("IGNORE.SECTION");
-
-    /** Default style for header comment started with ### */
-    public static final TextAttributesKey HEADER = TextAttributesKey.createTextAttributesKey("IGNORE.HEADER");
-
-    /** Default style for negation element - ! in the beginning of the entry */
-    public static final TextAttributesKey NEGATION = TextAttributesKey.createTextAttributesKey("IGNORE.NEGATION");
-
-    /** Default style for negation element - ! in the beginning of the entry */
-    public static final TextAttributesKey BRACKET = TextAttributesKey.createTextAttributesKey("IGNORE.BRACKET");
-
-    /** Default style for negation element - ! in the beginning of the entry */
-    public static final TextAttributesKey SLASH = TextAttributesKey.createTextAttributesKey("IGNORE.SLASH");
-
-    /** Default style for syntax element - syntax: */
-    public static final TextAttributesKey SYNTAX = TextAttributesKey.createTextAttributesKey("IGNORE.SYNTAX");
-
-    /** Default style for negation element - ! in the beginning of the entry */
-    public static final TextAttributesKey VALUE = TextAttributesKey.createTextAttributesKey("IGNORE.VALUE");
-
     /** Default style for unused entry */
-    public static final TextAttributesKey UNUSED = TextAttributesKey.createTextAttributesKey("IGNORE.UNUSED_ENTRY");
+    public static final TextAttributesKey UNUSED =
+        TextAttributesKey.createTextAttributesKey("IGNORE.UNUSED_ENTRY", CodeInsightColors.NOT_USED_ELEMENT_ATTRIBUTES);
 }

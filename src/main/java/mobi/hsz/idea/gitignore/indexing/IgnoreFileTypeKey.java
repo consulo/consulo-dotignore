@@ -24,9 +24,9 @@
 
 package mobi.hsz.idea.gitignore.indexing;
 
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 
 /**
  * Decorator for {@link IgnoreFileType} to provide less unique hashcode when used with {@link IgnoreFilesIndex}.
@@ -67,7 +67,7 @@ public class IgnoreFileTypeKey {
     @Override
     public boolean equals(@Nullable Object o) {
         return o instanceof IgnoreFileTypeKey ignoreFileTypeKey 
-            && ignoreFileTypeKey.getType().getLanguageName().equals(this.type.getLanguageName());
+            && ignoreFileTypeKey.getType().getLanguage().getID().equals(this.type.getLanguage().getID());
     }
 
     /**
@@ -77,6 +77,6 @@ public class IgnoreFileTypeKey {
      */
     @Override
     public int hashCode() {
-        return type.getLanguageName().hashCode();
+        return type.getLanguage().getID().hashCode();
     }
 }

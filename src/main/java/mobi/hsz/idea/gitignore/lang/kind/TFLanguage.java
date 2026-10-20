@@ -24,19 +24,19 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.TFFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * TFLanguage {@link IgnoreLanguage} definition.
+ * TFLanguage {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.1
  */
-public class TFLanguage extends IgnoreLanguage {
+public class TFLanguage extends DotIgnoreLanguage {
     /** The {@link TFLanguage} instance. */
     public static final TFLanguage INSTANCE = new TFLanguage();
 

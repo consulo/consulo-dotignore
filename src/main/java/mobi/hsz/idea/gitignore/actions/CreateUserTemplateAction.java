@@ -28,6 +28,7 @@ import consulo.codeEditor.Editor;
 import consulo.codeEditor.EditorFactory;
 import consulo.document.Document;
 import consulo.dotignore.localize.IgnoreLocalize;
+import consulo.language.ignore.psi.IgnoreFile;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
 import consulo.ui.annotation.RequiredUIAccess;
@@ -36,7 +37,6 @@ import consulo.ui.ex.action.AnActionEvent;
 import consulo.ui.ex.action.AnActionWithSyncUpdate;
 import consulo.util.lang.StringUtil;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.psi.IgnoreFile;
 import mobi.hsz.idea.gitignore.ui.template.UserTemplateDialog;
 import mobi.hsz.idea.gitignore.util.Icons;
 

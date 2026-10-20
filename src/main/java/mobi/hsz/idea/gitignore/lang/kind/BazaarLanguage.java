@@ -24,23 +24,23 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.BazaarFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Bazaar {@link IgnoreLanguage} definition.
+ * Bazaar {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 0.9
  */
-public class BazaarLanguage extends IgnoreLanguage {
+public class BazaarLanguage extends DotIgnoreLanguage {
     /** The {@link BazaarLanguage} instance. */
     public static final BazaarLanguage INSTANCE = new BazaarLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private BazaarLanguage() {
         super("Bazaar", "bzrignore", ".bzr", Icons.BAZAAR);
     }

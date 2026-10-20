@@ -33,8 +33,12 @@ import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.language.editor.inspection.LocalInspectionToolSession;
 import consulo.language.editor.inspection.ProblemsHolder;
 import consulo.language.editor.rawHighlight.HighlightDisplayLevel;
+import consulo.language.ignore.cache.PatternCache;
+import consulo.language.ignore.psi.IgnoreEntry;
+import consulo.language.ignore.psi.IgnoreFile;
 import consulo.language.psi.PsiElementVisitor;
 import consulo.language.psi.PsiFile;
+import consulo.language.psi.util.PsiTreeUtil;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -44,11 +48,8 @@ import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.event.*;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.IgnoreManager;
-import mobi.hsz.idea.gitignore.psi.IgnoreEntry;
-import mobi.hsz.idea.gitignore.psi.IgnoreFile;
 import mobi.hsz.idea.gitignore.util.Constants;
 import mobi.hsz.idea.gitignore.util.Glob;
-import mobi.hsz.idea.gitignore.util.MatcherUtil;
 import mobi.hsz.idea.gitignore.util.Utils;
 
 import java.util.*;
@@ -177,9 +178,9 @@ public class IgnoreCoverEntryInspection extends IgnoreInspection {
         List<Couple<IgnoreEntry>> result = new ArrayList<>();
         Map<IgnoreEntry, Set<String>> map = new HashMap<>();
 
-        ArrayList<IgnoreEntry> entries = new ArrayList<>(Arrays.asList(file.findChildrenByClass(IgnoreEntry.class)));
-        MatcherUtil matcher = IgnoreManager.getInstance(file.getProject()).getMatcher();
-        Map<IgnoreEntry, Set<String>> matchedMap = getPathsSet(contextDirectory, entries, matcher);
+        ArrayList<IgnoreEntry> entries = new ArrayList<>(PsiTreeUtil.getChildrenOfTypeAsList(file, IgnoreEntry.class));
+        PatternCache patternCache = PatternCache.getInstance(file.getProject());
+        Map<IgnoreEntry, Set<String>> matchedMap = getPathsSet(contextDirectory, entries, patternCache);
 
         for (IgnoreEntry entry : entries) {
             ProgressManager.checkCanceled();
@@ -248,7 +249,7 @@ public class IgnoreCoverEntryInspection extends IgnoreInspection {
     private Map<IgnoreEntry, Set<String>> getPathsSet(
         @Nonnull VirtualFile contextDirectory,
         @Nonnull ArrayList<IgnoreEntry> entries,
-        @Nonnull MatcherUtil matcher
+        @Nonnull PatternCache patternCache
     ) {
         Map<IgnoreEntry, Set<String>> result = new HashMap<>();
         ArrayList<IgnoreEntry> notCached = new ArrayList<>();
@@ -262,7 +263,7 @@ public class IgnoreCoverEntryInspection extends IgnoreInspection {
             result.put(entry, cacheMap.get(key));
         }
 
-        Map<IgnoreEntry, Set<String>> found = Glob.findAsPaths(contextDirectory, notCached, matcher, true);
+        Map<IgnoreEntry, Set<String>> found = Glob.findAsPaths(contextDirectory, notCached, patternCache, true);
         for (Map.Entry<IgnoreEntry, Set<String>> item : found.entrySet()) {
             ProgressManager.checkCanceled();
             String key = contextDirectory.getPath() + Constants.DOLLAR + item.getKey().getText();

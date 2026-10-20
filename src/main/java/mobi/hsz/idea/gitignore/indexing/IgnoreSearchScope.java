@@ -25,12 +25,12 @@
 package mobi.hsz.idea.gitignore.indexing;
 
 import consulo.content.scope.SearchScope;
+import consulo.language.ignore.IgnoreFileType;
 import consulo.language.psi.scope.GlobalSearchScope;
 import consulo.module.Module;
 import consulo.project.Project;
 import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 
 import java.util.HashSet;
 

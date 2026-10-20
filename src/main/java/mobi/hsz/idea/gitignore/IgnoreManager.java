@@ -32,6 +32,10 @@ import consulo.application.progress.ProgressManager;
 import consulo.component.messagebus.MessageBusConnection;
 import consulo.disposer.Disposable;
 import consulo.language.file.FileTypeManager;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
+import consulo.language.ignore.cache.PatternCache;
+import consulo.language.ignore.util.RegexUtil;
 import consulo.module.content.layer.event.ModuleRootListener;
 import consulo.module.event.ModuleListener;
 import consulo.project.DumbService;
@@ -58,13 +62,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.file.type.kind.GitExcludeFileType;
-import mobi.hsz.idea.gitignore.file.type.kind.GitFileType;
 import mobi.hsz.idea.gitignore.indexing.ExternalIndexableSetContributor;
 import mobi.hsz.idea.gitignore.indexing.IgnoreEntryOccurrence;
 import mobi.hsz.idea.gitignore.indexing.IgnoreFilesIndex;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 import mobi.hsz.idea.gitignore.util.*;
 import mobi.hsz.idea.gitignore.util.exec.ExternalExec;
@@ -86,18 +86,10 @@ import static mobi.hsz.idea.gitignore.settings.IgnoreSettings.KEY;
 @ServiceImpl
 @Singleton
 public class IgnoreManager implements Disposable {
-    /** List of all available {@link IgnoreFileType}. */
-    private static final List<IgnoreFileType> FILE_TYPES =
-        ContainerUtil.map(IgnoreBundle.LANGUAGES, IgnoreLanguage::getFileType);
-
     /** List of filenames that require to be associated with specific {@link IgnoreFileType}. */
     public static final Map<String, IgnoreFileType> FILE_TYPES_ASSOCIATION_QUEUE = ContainerUtil.newConcurrentMap();
 
     private final Project myProject;
-
-    /** {@link MatcherUtil} instance. */
-    @Nonnull
-    private final MatcherUtil matcher;
 
     /** {@link VirtualFileManager} instance. */
     @Nonnull
@@ -143,7 +135,7 @@ public class IgnoreManager implements Disposable {
     /** References to the indexed outer files. */
     @Nonnull
     private final CachedConcurrentMap<IgnoreFileType, Collection<VirtualFile>> cachedOuterFiles =
-        CachedConcurrentMap.create(key -> key.getIgnoreLanguage().getOuterFiles(getProject()));
+        CachedConcurrentMap.create(key -> IgnoreBundle.getOuterFiles(getProject(), key.getIgnoreLanguage()));
 
     @Nonnull
     private final ExpiringMap<VirtualFile, Boolean> expiringStatusCache = new ExpiringMap<>(1000);
@@ -235,11 +227,7 @@ public class IgnoreManager implements Disposable {
             FileType fileType = event.getFile().getFileType();
             if (fileType instanceof IgnoreFileType ignoreFileType) {
                 cachedIgnoreFilesIndex.remove(ignoreFileType);
-                cachedOuterFiles.remove(ignoreFileType);
-
-                if (fileType instanceof GitExcludeFileType) {
-                    cachedOuterFiles.remove(GitFileType.INSTANCE);
-                }
+                cachedOuterFiles.clear();
                 expiringStatusCache.clear();
                 debouncedStatusesChanged.run();
                 debouncedRefreshTrackedIgnores.run();
@@ -299,7 +287,6 @@ public class IgnoreManager implements Disposable {
     @Inject
     public IgnoreManager(@Nonnull Project project, @Nonnull VirtualFileManager virtualFileManager) {
         myProject = project;
-        this.matcher = new MatcherUtil();
         this.virtualFileManager = virtualFileManager;
         this.settings = IgnoreSettings.getInstance();
         this.statusManager = FileStatusManager.getInstance(project);
@@ -313,16 +300,6 @@ public class IgnoreManager implements Disposable {
 
     public Project getProject() {
         return myProject;
-    }
-
-    /**
-     * Returns {@link MatcherUtil} instance which is required for sharing matcher cache.
-     *
-     * @return {@link MatcherUtil} instance
-     */
-    @Nonnull
-    public MatcherUtil getMatcher() {
-        return matcher;
     }
 
     /**
@@ -346,7 +323,9 @@ public class IgnoreManager implements Disposable {
         boolean matched = false;
         int valuesCount = 0;
 
-        for (IgnoreFileType fileType : FILE_TYPES) {
+        PatternCache patternCache = PatternCache.getInstance(myProject);
+        for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
+            IgnoreFileType fileType = language.getFileType();
             ProgressManager.checkCanceled();
             if (!IgnoreBundle.ENABLED_LANGUAGES.get(fileType)) {
                 continue;
@@ -362,9 +341,10 @@ public class IgnoreManager implements Disposable {
                 if (entryFile == null) {
                     continue;
                 }
-                else if (fileType instanceof GitExcludeFileType) {
-                    VirtualFile workingDirectory = GitExcludeFileType.getWorkingDirectory(myProject, entryFile);
-                    if (workingDirectory == null || !Utils.isUnder(file, workingDirectory)) {
+
+                VirtualFile workingDirectory = language.getAffectedRoot(myProject, entryFile);
+                if (workingDirectory != null && !workingDirectory.equals(entryFile.getParent())) {
+                    if (!Utils.isUnder(file, workingDirectory)) {
                         continue;
                     }
                     relativePath = StringUtil.trimStart(file.getPath(), workingDirectory.getPath());
@@ -397,8 +377,8 @@ public class IgnoreManager implements Disposable {
                 }
 
                 for (Pair<String, Boolean> item : value.getItems()) {
-                    Pattern pattern = Glob.getPattern(item.first);
-                    if (matcher.match(pattern, relativePath)) {
+                    Pattern pattern = patternCache.getOrCreatePattern(item.first);
+                    if (RegexUtil.match(pattern, relativePath)) {
                         ignored = !item.second;
                         matched = true;
                     }
@@ -602,13 +582,13 @@ public class IgnoreManager implements Disposable {
          * @param silent propagate {@link TrackedIgnoredListener#TRACKED_IGNORED} event
          */
         public void run(boolean silent) {
-            if (!settings.isInformTrackedIgnored()) {
+            if (!settings.isInformTrackedIgnored() || !Utils.isGitPluginEnabled()) {
                 return;
             }
 
             ConcurrentMap<VirtualFile, VcsRoot> result = ContainerUtil.newConcurrentMap();
             for (VcsRoot vcsRoot : vcsRoots) {
-                if (!(vcsRoot.getVcs() instanceof GitVcs) || vcsRoot.getPath() == null) {
+                if (vcsRoot.getVcs() == null || !GitVcs.NAME.equals(vcsRoot.getVcs().getName()) || vcsRoot.getPath() == null) {
                     continue;
                 }
                 VirtualFile root = vcsRoot.getPath();

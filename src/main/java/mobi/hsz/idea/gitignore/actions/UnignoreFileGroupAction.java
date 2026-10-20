@@ -63,6 +63,14 @@ public class UnignoreFileGroupAction extends IgnoreFileGroupAction {
      * @param file current file
      * @return action instance
      */
+    /**
+     * There is no VCS "unignore" action, so every kind is offered.
+     */
+    @Override
+    protected boolean skipVcsOwnedKinds() {
+        return false;
+    }
+
     @Override
     protected IgnoreFileAction createAction(@Nonnull VirtualFile file) {
         return new UnignoreFileAction(file);

@@ -29,6 +29,8 @@ import consulo.codeEditor.Editor;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.language.ast.ASTNode;
 import consulo.language.editor.inspection.LocalQuickFixAndIntentionActionOnPsiElement;
+import consulo.language.ignore.psi.IgnoreEntry;
+import consulo.language.ignore.psi.IgnoreTypes;
 import consulo.language.impl.ast.TreeUtil;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -36,8 +38,6 @@ import consulo.localize.LocalizeValue;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
-import mobi.hsz.idea.gitignore.psi.IgnoreEntry;
-import mobi.hsz.idea.gitignore.psi.IgnoreTypes;
 
 /**
  * QuickFix action that removes specified entry handled by code inspections like

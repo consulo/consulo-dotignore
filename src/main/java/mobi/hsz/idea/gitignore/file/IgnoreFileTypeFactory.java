@@ -25,14 +25,16 @@
 package mobi.hsz.idea.gitignore.file;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.virtualFileSystem.fileType.FileNameMatcherFactory;
 import consulo.virtualFileSystem.fileType.FileTypeConsumer;
 import consulo.virtualFileSystem.fileType.FileTypeFactory;
 import jakarta.annotation.Nonnull;
 import jakarta.inject.Inject;
-import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
+import mobi.hsz.idea.gitignore.lang.kind.*;
+
+import java.util.List;
 
 /**
  * Class that assigns file types with languages.
@@ -42,6 +44,30 @@ import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
  */
 @ExtensionImpl
 public class IgnoreFileTypeFactory extends FileTypeFactory {
+    /**
+     * Ignore kinds registered by the .ignore plugin itself.
+     */
+    private static final List<IgnoreLanguage> LANGUAGES = List.of(
+        BazaarLanguage.INSTANCE,
+        CloudFoundryLanguage.INSTANCE,
+        ChefLanguage.INSTANCE,
+        CvsLanguage.INSTANCE,
+        DarcsLanguage.INSTANCE,
+        ElasticBeanstalkLanguage.INSTANCE,
+        FloobitsLanguage.INSTANCE,
+        FossilLanguage.INSTANCE,
+        GoogleCloudLanguage.INSTANCE,
+        HelmLanguage.INSTANCE,
+        JetpackLanguage.INSTANCE,
+        MonotoneLanguage.INSTANCE,
+        PerforceLanguage.INSTANCE,
+        StyleLintLanguage.INSTANCE,
+        StylintLanguage.INSTANCE,
+        SwaggerCodegenLanguage.INSTANCE,
+        TFLanguage.INSTANCE,
+        UpLanguage.INSTANCE
+    );
+
     private final FileNameMatcherFactory fileNameMatcherFactory;
 
     @Inject
@@ -56,8 +82,7 @@ public class IgnoreFileTypeFactory extends FileTypeFactory {
      */
     @Override
     public void createFileTypes(@Nonnull FileTypeConsumer consumer) {
-        consume(consumer, IgnoreFileType.INSTANCE);
-        for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
+        for (IgnoreLanguage language : LANGUAGES) {
             consume(consumer, language.getFileType());
         }
     }

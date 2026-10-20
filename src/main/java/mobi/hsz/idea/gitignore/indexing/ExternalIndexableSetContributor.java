@@ -25,6 +25,8 @@
 package mobi.hsz.idea.gitignore.indexing;
 
 import consulo.annotation.component.ExtensionImpl;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.IgnoreLanguage;
 import consulo.language.psi.stub.IndexableSetContributor;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
@@ -32,8 +34,6 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
 import mobi.hsz.idea.gitignore.IgnoreManager;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -67,10 +67,10 @@ public class ExternalIndexableSetContributor extends IndexableSetContributor {
         if (CACHE.containsKey(project)) {
             files.addAll(ContainerUtil.filter(CACHE.get(project), VirtualFile::isValid));
         } else {
-            for (IgnoreLanguage language : IgnoreBundle.LANGUAGES) {
+            for (IgnoreLanguage language : IgnoreBundle.getLanguages()) {
                 IgnoreFileType fileType = language.getFileType();
-                if (language.isOuterFileSupported()) {
-                    for (VirtualFile file : language.getOuterFiles(project, true)) {
+                if (IgnoreBundle.isOuterFileSupported(language)) {
+                    for (VirtualFile file : IgnoreBundle.getOuterFiles(project, language)) {
                         if (file == null || !file.isValid()) {
                             continue;
                         }

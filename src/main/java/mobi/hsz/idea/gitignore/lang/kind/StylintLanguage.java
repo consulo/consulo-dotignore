@@ -24,10 +24,10 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
 import jakarta.annotation.Nonnull;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.StylintFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
@@ -36,11 +36,11 @@ import mobi.hsz.idea.gitignore.util.Icons;
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.7
  */
-public class StylintLanguage extends IgnoreLanguage {
+public class StylintLanguage extends DotIgnoreLanguage {
     /** The {@link StylintLanguage} instance. */
     public static final StylintLanguage INSTANCE = new StylintLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private StylintLanguage() {
         super("Stylint", "stylintignore", null, Icons.STYLINT);
     }

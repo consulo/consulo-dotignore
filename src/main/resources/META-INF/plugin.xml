@@ -1,6 +1,6 @@
 <consulo-plugin url="https://github.com/consulo/consulo-dotignore">
     <id>mobi.hsz.idea.gitignore</id>
-    <name>.ignore</name>
+    <name>.ignore Helpers</name>
     <version>SNAPSHOT</version>
     <vendor email="jakub@hsz.mobi" url="http://ignore.hsz.mobi">hsz</vendor>
     <tags>
@@ -12,69 +12,46 @@
         <permission type="PROCESS_CREATE"/>
     </permissions>
     <description><![CDATA[
-      <h1>.ignore</h1>
-      <b>.ignore</b> is a plugin for
+      Extra tools for ignore files on top of the platform <i>.ignore</i> language support.
+      <br/>
+      <br/>
+      Syntax highlighting, inspections, completion and VCS "Add to ignore file" actions come from the platform;
+      kinds such as <i>.gitignore</i>, <i>.hgignore</i>, <i>.dockerignore</i> or <i>.npmignore</i> are registered by
+      their own plugins. This plugin works with every registered kind and adds:
+      <ul>
+        <li>Rules generator based on <a href="https://github.com/github/gitignore">GitHub's gitignore templates</a>,
+            with filtering by name and content, favorite templates and custom user templates (import/export)</li>
+        <li>Creating ignore files in the selected directory</li>
+        <li>Adding and removing files from ignore rules for kinds without a VCS action</li>
+        <li>Coloring ignored files and hiding them in the Project View</li>
+        <li>Outer rules preview (global <i>.gitignore</i>, <i>.git/info/exclude</i>) in the ignore file editor</li>
+        <li>Covered and unused entry inspections</li>
+        <li>Notifications about a missing <i>.gitignore</i>, unversioned files and editing ignored files</li>
+        <li>Handling tracked ignored files and closing ignored editors</li>
+      </ul>
+      Additional kinds:
       <i>
-        .gitignore (Git),
-        .hgignore (Mercurial),
-        .npmignore (NPM),
-        .dockerignore (Docker),
-        .chefignore (Chef),
-        .cvsignore (CVS),
         .bzrignore (Bazaar),
-        .boringignore (Darcs),
-        .mtn-ignore (Monotone),
-        ignore-glob (Fossil),
-        .jshintignore (JSHint),
-        .tfignore (Team Foundation),
-        .p4ignore (Perforce),
-        .prettierignore (Prettier),
-        .flooignore (Floobits),
-        .eslintignore (ESLint),
+        .chefignore (Chef),
         .cfignore (Cloud Foundry),
+        .cvsignore (CVS),
+        .boringignore (Darcs),
+        .ebignore (ElasticBeanstalk),
+        .flooignore (Floobits),
+        ignore-glob (Fossil),
+        .gcloudignore (Google Cloud),
+        .helmignore (Kubernetes Helm),
         .jpmignore (Jetpack),
+        .mtn-ignore (Monotone),
+        .p4ignore (Perforce),
         .stylelintignore (StyleLint),
         .stylintignore (Stylint),
         .swagger-codegen-ignore (Swagger Codegen),
-        .helmignore (Kubernetes Helm),
-        .upignore (Up),
-        .prettierignore (Prettier),
-        .ebignore (ElasticBeanstalk),
-        .gcloudignore (Google Cloud)
-      </i>files in your project.
-      <br/>
-      <br/>
-
-      <b>Features</b>
-      <ul>
-        <li>Files syntax highlight</li>
-        <li>Coloring ignored files in the Project View</li>
-        <li>Gitignore templates filtering and selecting in rules generator by name and content</li>
-        <li>Show ignored files by specified ignore file (right click on <i>.gitignore</i> file)</li>
-        <li>Hide ignored files in Project View</li>
-        <li>Create file in currently selected directory</li>
-        <li>Generate Gitignore rules basing on <a href="https://github.com/github/gitignore">GitHub's templates collection</a></li>
-        <li>Add selected file/directory to ignore rules from popup menu</li>
-        <li>Suggesting <i>.gitignore</i> file creation for new project</li>
-        <li>Entries inspection (duplicated, covered, unused, relative, incorrect syntax, relative entries) with fix actions</li>
-        <li>Comments and brackets support</li>
-        <li>Navigation to entries in Project view</li>
-        <li>Renaming entries from ignore file</li>
-        <li>Close opened ignored files action</li>
-        <li>Custom user templates with import/export features</li>
-        <li>Create custom templates from existing rules</li>
-        <li>Favorite templates</li>
-      </ul>
-
-      <br/>
-      <br/>
-
+        .tfignore (Team Foundation),
+        .upignore (Up)
+      </i>
     ]]></description>
 
     <depends optional="true">com.intellij.git</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <additionalTextAttributes file="colorSchemes/IgnoreDefault.xml" scheme="Default"/>
-        <additionalTextAttributes file="colorSchemes/IgnoreDarcula.xml" scheme="Darcula"/>
-    </extensions>
 </consulo-plugin>

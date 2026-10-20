@@ -24,12 +24,12 @@
 
 package mobi.hsz.idea.gitignore.command;
 
+import consulo.language.ignore.IgnoreFileType;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiFile;
 import consulo.project.Project;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.file.IgnoreTemplatesFactory;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 
 /**
  * Command action that creates new file in given directory.

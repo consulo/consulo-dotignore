@@ -24,7 +24,7 @@
 
 package mobi.hsz.idea.gitignore.file.type.kind;
 
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
+import consulo.language.ignore.IgnoreFileType;
 import mobi.hsz.idea.gitignore.lang.kind.CvsLanguage;
 
 /**

@@ -28,6 +28,7 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.fileEditor.*;
+import consulo.language.ignore.IgnoreFileType;
 import consulo.language.psi.PsiDirectory;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
@@ -36,18 +37,17 @@ import consulo.virtualFileSystem.VirtualFile;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Inject;
+import mobi.hsz.idea.gitignore.IgnoreBundle;
 import mobi.hsz.idea.gitignore.command.CreateFileCommandAction;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
-import mobi.hsz.idea.gitignore.file.type.kind.GitFileType;
-import mobi.hsz.idea.gitignore.lang.kind.GitLanguage;
 import mobi.hsz.idea.gitignore.settings.IgnoreSettings;
 import mobi.hsz.idea.gitignore.ui.GeneratorDialog;
 import mobi.hsz.idea.gitignore.util.Properties;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
- * Editor notification provider that checks if there is {@link GitLanguage#getFilename()}
+ * Editor notification provider that checks if there is {@code .gitignore}
  * in root directory and suggest to create one.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
@@ -101,8 +101,7 @@ public class MissingGitignoreNotificationProvider implements EditorNotificationP
             return null;
         }
         // Break if there is no Git directory in the project
-        String vcsDirectory = GitLanguage.INSTANCE.getVcsDirectory();
-        if (vcsDirectory == null) {
+        if (IgnoreBundle.findGitIgnoreFileType() == null) {
             return null;
         }
 
@@ -111,12 +110,12 @@ public class MissingGitignoreNotificationProvider implements EditorNotificationP
             return null;
         }
 
-        VirtualFile gitDirectory = baseDir.findChild(vcsDirectory);
+        VirtualFile gitDirectory = baseDir.findChild(IgnoreBundle.DOT_GIT);
         if (gitDirectory == null || !gitDirectory.isDirectory()) {
             return null;
         }
         // Break if there is Gitignore file already
-        VirtualFile gitignoreFile = baseDir.findChild(GitLanguage.INSTANCE.getFilename());
+        VirtualFile gitignoreFile = baseDir.findChild(IgnoreBundle.GITIGNORE);
         if (gitignoreFile != null) {
             return null;
         }
@@ -132,7 +131,7 @@ public class MissingGitignoreNotificationProvider implements EditorNotificationP
      * @return notification panel
      */
     private EditorNotificationBuilder createPanel(@Nonnull Project project, EditorNotificationBuilder builder) {
-        IgnoreFileType fileType = GitFileType.INSTANCE;
+        IgnoreFileType fileType = Objects.requireNonNull(IgnoreBundle.findGitIgnoreFileType());
         builder.withText(IgnoreLocalize.daemonMissinggitignore());
         builder.withAction(IgnoreLocalize.daemonAddunversionedfilesCreate(), (e) -> {
             PsiDirectory directory = PsiManager.getInstance(project).findDirectory(project.getBaseDir());

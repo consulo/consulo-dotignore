@@ -24,24 +24,25 @@
 
 package mobi.hsz.idea.gitignore.lang.kind;
 
+import consulo.dotignore.lang.DotIgnoreLanguage;
+import consulo.language.ignore.IgnoreFileType;
+import consulo.language.ignore.Syntax;
 import jakarta.annotation.Nonnull;
 import mobi.hsz.idea.gitignore.IgnoreBundle;
-import mobi.hsz.idea.gitignore.file.type.IgnoreFileType;
 import mobi.hsz.idea.gitignore.file.type.kind.DarcsFileType;
-import mobi.hsz.idea.gitignore.lang.IgnoreLanguage;
 import mobi.hsz.idea.gitignore.util.Icons;
 
 /**
- * Darcs {@link IgnoreLanguage} definition.
+ * Darcs {@link DotIgnoreLanguage} definition.
  *
  * @author Jakub Chrzanowski <jakub@hsz.mobi>
  * @since 1.0
  */
-public class DarcsLanguage extends IgnoreLanguage {
+public class DarcsLanguage extends DotIgnoreLanguage {
     /** The {@link DarcsLanguage} instance. */
     public static final DarcsLanguage INSTANCE = new DarcsLanguage();
 
-    /** {@link IgnoreLanguage} is a non-instantiable static class. */
+    /** {@link DotIgnoreLanguage} is a non-instantiable static class. */
     private DarcsLanguage() {
         super("Darcs", "boringignore", ".darcs", Icons.DARCS);
     }
@@ -64,7 +65,7 @@ public class DarcsLanguage extends IgnoreLanguage {
      */
     @Nonnull
     @Override
-    public IgnoreBundle.Syntax getDefaultSyntax() {
-        return IgnoreBundle.Syntax.REGEXP;
+    public Syntax getDefaultSyntax() {
+        return Syntax.REGEXP;
     }
 }
