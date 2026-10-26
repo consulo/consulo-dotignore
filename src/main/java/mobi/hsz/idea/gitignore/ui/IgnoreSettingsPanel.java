@@ -37,7 +37,6 @@ import consulo.dotignore.localize.IgnoreLocalize;
 import consulo.fileChooser.FileChooserDescriptor;
 import consulo.fileChooser.FileChooserFactory;
 import consulo.fileChooser.FileSaverDescriptor;
-import consulo.fileChooser.IdeaFileChooser;
 import consulo.language.editor.LangDataKeys;
 import consulo.language.ignore.IgnoreLanguage;
 import consulo.localize.LocalizeValue;
@@ -55,7 +54,6 @@ import consulo.undoRedo.CommandProcessor;
 import consulo.util.jdom.JDOMUtil;
 import consulo.util.lang.StringUtil;
 import consulo.virtualFileSystem.VirtualFile;
-import consulo.virtualFileSystem.VirtualFileWrapper;
 import consulo.virtualFileSystem.archive.ArchiveFileType;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
@@ -73,6 +71,8 @@ import java.util.List;
 import java.util.TreeMap;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import static mobi.hsz.idea.gitignore.settings.IgnoreSettings.IgnoreLanguagesSettings.KEY.ENABLE;
 import static mobi.hsz.idea.gitignore.settings.IgnoreSettings.IgnoreLanguagesSettings.KEY.NEW_FILE;
@@ -727,28 +727,31 @@ public class IgnoreSettingsPanel implements Disposable {
                         event.getData(Module.KEY)
                     );
 
-                    VirtualFile file = IdeaFileChooser.chooseFile(descriptor, templatesListPanel, null, null);
-                    if (file != null) {
-                        try {
-                            org.jdom.Document document = JDOMUtil.loadDocument(file.getInputStream());
-                            Element element = document.getRootElement();
-                            List<IgnoreSettings.UserTemplate> templates = IgnoreSettings.loadTemplates(element);
-                            for (IgnoreSettings.UserTemplate template : templates) {
-                                myListModel.addElement(template);
+                    FileChooserFactory.getInstance()
+                        .newBuilder(descriptor)
+                        .parent(templatesListPanel)
+                        .showSingle()
+                        .whenComplete((file, error) -> {
+                            if (file == null) {
+                                return;
                             }
-                            Messages.showInfoMessage(
-                                templatesListPanel,
-                                IgnoreLocalize.actionImporttemplatesSuccess(templates.size()).get(),
-                                IgnoreLocalize.actionExporttemplatesSuccessTitle().get()
-                            );
-                            return;
-                        }
-                        catch (IOException | JDOMException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    Messages.showErrorDialog(templatesListPanel, IgnoreLocalize.actionImporttemplatesError().get());
+                            try (InputStream stream = Files.newInputStream(file)) {
+                                org.jdom.Document document = JDOMUtil.loadDocument(stream);
+                                Element element = document.getRootElement();
+                                List<IgnoreSettings.UserTemplate> templates = IgnoreSettings.loadTemplates(element);
+                                for (IgnoreSettings.UserTemplate template : templates) {
+                                    myListModel.addElement(template);
+                                }
+                                Messages.showInfoMessage(
+                                    templatesListPanel,
+                                    IgnoreLocalize.actionImporttemplatesSuccess(templates.size()).get(),
+                                    IgnoreLocalize.actionExporttemplatesSuccessTitle().get()
+                                );
+                            }
+                            catch (IOException | JDOMException e) {
+                                Messages.showErrorDialog(templatesListPanel, IgnoreLocalize.actionImporttemplatesError().get());
+                            }
+                        });
                 }
             });
 
@@ -760,35 +763,38 @@ public class IgnoreSettingsPanel implements Disposable {
                 @Override
                 @RequiredUIAccess
                 public void actionPerformed(@Nonnull AnActionEvent event) {
-                    VirtualFileWrapper wrapper = FileChooserFactory.getInstance().createSaveFileDialog(
-                        new FileSaverDescriptor(
-                            IgnoreLocalize.actionExporttemplatesWrapper().get(),
-                            LocalizeValue.empty().get(),
-                            FILE_EXTENSION
-                        ),
-                        templatesListPanel
-                    ).save(null, null);
-
-                    if (wrapper != null) {
-                        List<IgnoreSettings.UserTemplate> items = getCurrentItems();
-                        org.jdom.Document document = new org.jdom.Document(
-                            IgnoreSettings.createTemplatesElement(items)
-                        );
-                        try {
-                            JDOMUtil.writeDocument(document, wrapper.getFile(), Constants.NEWLINE);
-                            Messages.showInfoMessage(
-                                templatesListPanel,
-                                IgnoreLocalize.actionExporttemplatesSuccess(items.size()).get(),
-                                IgnoreLocalize.actionExporttemplatesSuccessTitle().get()
+                    FileSaverDescriptor descriptor = new FileSaverDescriptor(
+                        IgnoreLocalize.actionExporttemplatesWrapper().get(),
+                        LocalizeValue.empty().get(),
+                        FILE_EXTENSION
+                    );
+                    FileChooserFactory.getInstance()
+                        .newSaverBuilder(descriptor)
+                        .parent(templatesListPanel)
+                        .showAsync()
+                        .whenComplete((path, error) -> {
+                            if (path == null) {
+                                return;
+                            }
+                            List<IgnoreSettings.UserTemplate> items = getCurrentItems();
+                            org.jdom.Document document = new org.jdom.Document(
+                                IgnoreSettings.createTemplatesElement(items)
                             );
-                        }
-                        catch (IOException e) {
-                            Messages.showErrorDialog(
-                                templatesListPanel,
-                                IgnoreLocalize.actionExporttemplatesError().get()
-                            );
-                        }
-                    }
+                            try {
+                                JDOMUtil.writeDocument(document, path.toFile(), Constants.NEWLINE);
+                                Messages.showInfoMessage(
+                                    templatesListPanel,
+                                    IgnoreLocalize.actionExporttemplatesSuccess(items.size()).get(),
+                                    IgnoreLocalize.actionExporttemplatesSuccessTitle().get()
+                                );
+                            }
+                            catch (IOException e) {
+                                Messages.showErrorDialog(
+                                    templatesListPanel,
+                                    IgnoreLocalize.actionExporttemplatesError().get()
+                                );
+                            }
+                        });
                 }
 
                 @Override
