@@ -19,8 +19,8 @@ import consulo.language.ignore.IgnoreFileType;
 import consulo.language.ignore.IgnoreLanguage;
 import consulo.project.Project;
 import consulo.util.collection.ContainerUtil;
-import consulo.virtualFileSystem.LocalFileSystem;
 import consulo.virtualFileSystem.VirtualFile;
+import consulo.virtualFileSystem.VirtualFileManager;
 import consulo.virtualFileSystem.fileType.FileType;
 import consulo.virtualFileSystem.fileType.FileTypeRegistry;
 import git4idea.GitUtil;
@@ -74,7 +74,7 @@ public final class GitOuterFileFetchers {
     private static Collection<VirtualFile> fetchExcludeFiles(Project project) {
         List<VirtualFile> files = new ArrayList<>();
         for (GitRepository repository : GitUtil.getRepositories(project)) {
-            ContainerUtil.addIfNotNull(files, LocalFileSystem.getInstance().findFileByIoFile(repository.getRepositoryFiles().getExcludeFile()));
+            ContainerUtil.addIfNotNull(files, VirtualFileManager.getInstance().findFileByNioPath(repository.getRepositoryFiles().getExcludeFile()));
         }
         return files;
     }
